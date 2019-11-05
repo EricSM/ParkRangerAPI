@@ -4,23 +4,23 @@
 # az login
 # az webapp deployment source config-local-git --name parkwatch-backend --resource-group ParkWatch
 # OR
-# az webapp create -g ParkWatch -p ASP-ParkWatch-9dbf -n parkwatch-backend --runtime "python|3.7" --deployment-local-git
+# az webapp create -g ParkWatch -p ASP-ParkWatch-9dbf -n parkwatch-backend --runtime "python|3.6" --deployment-local-git
 
 # parkwatch_ranger, (same password as elsewhere)
 
 # Copy url under deployment center > credentials
 # git remote add azure <url>
-# git push azure master
+# git push azure <current branch>:master 
 
 # https://docs.microsoft.com/en-us/azure/app-service/containers/how-to-configure-python
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, make_response, request
 from controllers.report import Report, ReportHandler
 
 app = Flask(__name__, template_folder="templates")
 
 report_handler = ReportHandler()
-report_handler.create_report(
+report_id = report_handler.create_report(
     "White Rim",
     100.0,
     100.0,
@@ -34,9 +34,29 @@ def get_reports(report_id):
     report_json = report_handler.get_report_json(report_id)
     return report_json
 
+@app.route('/pw/api/v1.0/reports', methods=['POST'])
+def create_task():
+    if not request.json or not 'loc_name' in request.json:
+        abort(400)
+    
+    report_id = report_handler.create_report(request.json['loc_name'],
+                     request.json['loc_lat'],
+                     request.json['loc_long'],
+                     request.json['description'],
+                     request.json['severity'],
+                     request.json['closure'])
+
+    report_json = report_handler.get_report_json(report_id)
+    return report_json
+
 @app.route('/')
 def home():
-    return "Hello!"
+    return """API:\n\n
+            GET Report: /pw/api/v1.0/reports/<int:report_id>"""
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 if __name__ == '__main__':
     app.run(debug=True)

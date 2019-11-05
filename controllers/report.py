@@ -31,6 +31,7 @@ class ReportHandler:
         # self.cnxn = cnxn
         # self.cursor = cnxn.cursor()
 
+        self.temp_fake_db = []
         self.report_dictionary = {}
 
     def create_report(self, loc_name, loc_lat, loc_long, description, severity, closure):
@@ -52,8 +53,13 @@ class ReportHandler:
         # self.cursor.execute("insert into reports(id) values ({})".format(str(new_report.id))) # Insert it into databse
         # self.cnxn.commit()
 
-        new_id = 0
+        new_id = len(self.temp_fake_db)
+        new_report.set_id(new_id)
+
+        self.temp_fake_db.append(new_report)
         self.report_dictionary[new_id] = new_report
+
+        return new_id
 
     def get_report(self, id):
         return self.report_dictionary[id]

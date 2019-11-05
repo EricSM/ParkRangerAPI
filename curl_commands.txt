@@ -1,0 +1,5 @@
+'{"loc_name":"Test name","loc_lat":100.0, "loc_long":100.0,"description":"A test description","severity":10,"closure":1}'
+
+curl -i http://localhost:5000/pw/api/v1.0/reports/0
+
+curl -i -H "Content-Type: application/json" -X POST -d '{"loc_name":"Test name","loc_lat":100.0, "loc_long":100.0,"description":"A test description","severity":10,"closure":1}' http://localhost:5000/pw/api/v1.0/reports
