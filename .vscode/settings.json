@@ -1,4 +1,4 @@
 {
     "appService.showBuildDuringDeployPrompt": false,
-    "python.pythonPath": "c:\\Users\\Ian\\source\\repos\\parkwatchbackend\\env\\Scripts\\python.exe"
+    "python.pythonPath": "env/bin/python"
 }
