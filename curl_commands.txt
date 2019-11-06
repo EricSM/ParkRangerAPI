@@ -1,5 +1,10 @@
 '{"loc_name":"Test name","loc_lat":100.0, "loc_long":100.0,"description":"A test description","severity":10,"closure":1}'
 
+# GET Report locally
 curl -i http://localhost:5000/pw/api/v1.0/reports/0
 
+# POST Report locally
 curl -i -H "Content-Type: application/json" -X POST -d '{"loc_name":"Test name","loc_lat":100.0, "loc_long":100.0,"description":"A test description","severity":10,"closure":1}' http://localhost:5000/pw/api/v1.0/reports
+
+# Azure
+curl -i -H "Content-Type: application/json" -X POST -d '{"loc_name":"Test name","loc_lat":100.0, "loc_long":100.0,"description":"A test description","severity":10,"closure":1}' https://parkwatch-backend.azurewebsites.net/pw/api/v1.0/reports
