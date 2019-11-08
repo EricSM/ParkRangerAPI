@@ -37,7 +37,7 @@ def get_report(report_id):
     return report_json
 
 @app.route('/pw/api/reports/', methods=['GET'])
-@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+@cross_origin(origin='*')
 def get_reports():
     reports_list_json = report_handler.get_reports_list_json()
     return reports_list_json
