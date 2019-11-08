@@ -37,6 +37,7 @@ def get_report(report_id):
     return report_json
 
 @app.route('/pw/api/reports/', methods=['GET'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def get_reports():
     reports_list_json = report_handler.get_reports_list_json()
     return reports_list_json
@@ -59,7 +60,7 @@ def create_task():
 @app.route('/')
 def home():
     return """API:\n\n
-            GET Report: /pw/api/v1.0/reports/<int:report_id>"""
+            GET Report: /pw/api/reports/<int:report_id>"""
 
 @app.errorhandler(404)
 def not_found(error):
