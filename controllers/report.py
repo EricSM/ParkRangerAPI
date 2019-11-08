@@ -66,8 +66,6 @@ class ReportHandler:
         new_report.set_id(new_id)
         self.cnxn.commit()
 
-        new_id = 0
-        print(new_id)
 
         # Commit report with new id
         # update_report_id_string = "Update Reports Set id = " + str(new_id) +" Where id = " + str(new_id)
@@ -110,7 +108,7 @@ class ReportHandler:
         for r in self.temp_fake_db:
             reports.append(jsonpickle.encode(r))
     
-        return jsonpickle.encode({'reports': reports})
+        return jsonpickle.encode(reports)
 
 
 
