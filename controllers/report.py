@@ -66,6 +66,7 @@ class ReportHandler:
         new_report.set_id(new_id)
         self.cnxn.commit()
 
+        new_id = 0
         print(new_id)
 
         # Commit report with new id

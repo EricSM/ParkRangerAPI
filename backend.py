@@ -17,9 +17,11 @@
 import jsonpickle
 
 from flask import Flask, jsonify, render_template, make_response, request
+from flask_cors import CORS
 from controllers.report import Report, ReportHandler
 
 app = Flask(__name__, template_folder="templates")
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 report_handler = ReportHandler()
 report_id = report_handler.create_report(
@@ -37,7 +39,6 @@ def get_report(report_id):
     return report_json
 
 @app.route('/pw/api/reports/', methods=['GET'])
-@cross_origin(origin='*')
 def get_reports():
     reports_list_json = report_handler.get_reports_list_json()
     return reports_list_json
