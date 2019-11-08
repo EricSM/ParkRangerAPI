@@ -21,7 +21,7 @@ from flask_cors import CORS
 from controllers.report import Report, ReportHandler
 
 app = Flask(__name__, template_folder="templates")
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r"pw/api/*": {"origins": "*"}})
 
 report_handler = ReportHandler()
 report_id = report_handler.create_report(
