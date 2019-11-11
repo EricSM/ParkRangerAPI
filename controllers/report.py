@@ -3,8 +3,9 @@ import datetime as dt
 import jsonpickle
 
 class Report:
-    def __init__(self, loc_name, loc_lat, loc_long, description, severity, closure):
+    def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status):
         self.id = 0 # Int
+        self.park_id = park_id
         self.loc_name = loc_name # String
         self.loc_lat = loc_lat # Float
         self.loc_long = loc_long # Float
@@ -12,6 +13,7 @@ class Report:
         self.severity = severity # Int
         self.closure = closure # Bit
         self.report_datetime = dt.datetime.now()# .strftime("%m/%d/%Y, %H:%M:%S") # String
+        self.approval_status = approval_status # Bit
 
     def set_id(self, id):
         self.id = id
@@ -26,15 +28,15 @@ class ReportHandler:
         username = 'ranger'
         password = 'ParkWatch123!'
         driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
-        cnxn = pyodbc.connect(driver)
+        # cnxn = pyodbc.connect(driver)
 
-        self.cnxn = cnxn
-        self.cursor = cnxn.cursor()
+        # self.cnxn = cnxn
+        # self.cursor = cnxn.cursor()
 
         self.temp_fake_db = []
         self.report_dictionary = {}
 
-    def create_report(self, loc_name, loc_lat, loc_long, description, severity, closure):
+    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
 
@@ -49,11 +51,12 @@ class ReportHandler:
             Returns the id of the newly created report
         """
 
-        new_report = Report(loc_name, loc_lat, loc_long, description, severity, closure) # Create a new report
+        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, 0) # Create a new report
 
-        insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime) Values (?,?,?,?,?,?,?)"
+        insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime) Values (?,?,?,?,?,?,?,?)"
         self.cursor.execute(insert_sql_string, 
                             new_report.loc_name, 
+                            new_report.park_id,
                             str(new_report.loc_lat), 
                             str(new_report.loc_long), 
                             new_report.report_description, 
@@ -66,7 +69,6 @@ class ReportHandler:
         new_report.set_id(new_id)
         self.cnxn.commit()
 
-
         # Commit report with new id
         # update_report_id_string = "Update Reports Set id = " + str(new_id) +" Where id = " + str(new_id)
         # self.cursor.execute(update_report_id_string)
@@ -75,9 +77,9 @@ class ReportHandler:
         self.temp_fake_db.append(new_report)
         self.report_dictionary[new_id] = new_report
 
-        return new_id
+        return jsonpicke.encode(new_report)
 
-    def get_report(self, id):
+    def get_report(self, park_id, id):
         """
         Returns the report associated with the given id
 
@@ -86,9 +88,26 @@ class ReportHandler:
         Returns:
             Report object
         """
-        return self.report_dictionary[id]
+
+        selection_string = "Select * Where park_id = {} AND id = {}".format(park_id, id)
+        self.cursor.execute(selection_string)
+        rows = cursor.fetchall()
+
+        if rows:
+            fetched_report = Report(rows.loc_name,
+                                    rows.park_id,
+                                    rows.loc_lat,
+                                    rows.loc_long,
+                                    rows.report_description,
+                                    rows.severity,
+                                    rows.closure,
+                                    rows.approval_status)
+            
+            return fetched_report
+
+        return None
     
-    def get_report_json(self, id):
+    def get_report_json(self, park_id, id):
         """
         Returns the report associated with the given id as a JSON
 
@@ -97,9 +116,9 @@ class ReportHandler:
         Returns:
             Returns json of report object
         """
-        return jsonpickle.encode(self.report_dictionary[id])
+        return jsonpickle.encode(self.get_report(park_id, id))
 
-    def get_reports_list_json(self):
+    def get_reports_list_json(self, park_id):
         """
         TODO(Ian): This should return all cached reports
         """
