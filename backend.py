@@ -26,7 +26,7 @@ cors = CORS(app)
 report_handler = ReportHandler()
 report_id = report_handler.create_report(
     'White Rim',
-    0,
+    1,
     100.0,
     100.0,
     'Trail is closed due to flooding at mile 78.',
