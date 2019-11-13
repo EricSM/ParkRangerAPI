@@ -52,7 +52,7 @@ class ReportHandler:
             Returns the id of the newly created report
         """
 
-        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, 0, approval_status) # Create a new report
+        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status) # Create a new report
 
         insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approval_status) Values (?,?,?,?,?,?,?,?,?,?)"
         self.cursor.execute(insert_sql_string, 
