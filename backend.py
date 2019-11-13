@@ -32,7 +32,7 @@ report_id = report_handler.create_report(
     'Trail is closed due to flooding at mile 78.',
     5,
     1,
-    0
+    1
 )
 
 @app.route('/pw/api/reports', methods=['GET', 'POST'])
