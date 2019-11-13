@@ -54,7 +54,7 @@ class ReportHandler:
 
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status) # Create a new report
 
-        insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approval_status) Values (?,?,?,?,?,?,?,?,?,?)"
+        insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?,?)"
         self.cursor.execute(insert_sql_string, 
                             new_report.loc_name, 
                             new_report.park_id,
