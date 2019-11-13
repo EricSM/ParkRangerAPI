@@ -54,17 +54,16 @@ class ReportHandler:
 
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
 
-        insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?,?)"
+        insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?)"
         self.cursor.execute(insert_sql_string, 
                             new_report.loc_name, 
-                            new_report.park_id,
                             str(new_report.loc_lat), 
                             str(new_report.loc_long), 
                             new_report.report_description, 
                             str(new_report.closure), 
                             str(new_report.severity), 
                             new_report.report_datetime,
-                            park_id,
+                            new_report.park_id,
                             approved_status) # Insert it into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
