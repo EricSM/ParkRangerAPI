@@ -28,10 +28,10 @@ class ReportHandler:
         username = 'ranger'
         password = 'ParkWatch123!'
         driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
-        # cnxn = pyodbc.connect(driver)
+        cnxn = pyodbc.connect(driver)
 
-        # self.cnxn = cnxn
-        # self.cursor = cnxn.cursor()
+        self.cnxn = cnxn
+        self.cursor = cnxn.cursor()
 
         self.temp_fake_db = []
         self.report_dictionary = {}
@@ -53,7 +53,7 @@ class ReportHandler:
 
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, 0) # Create a new report
 
-        insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime) Values (?,?,?,?,?,?,?,?)"
+        insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approval_status) Values (?,?,?,?,?,?,?,?,?,?)"
         self.cursor.execute(insert_sql_string, 
                             new_report.loc_name, 
                             new_report.park_id,
@@ -62,7 +62,9 @@ class ReportHandler:
                             new_report.report_description, 
                             str(new_report.closure), 
                             str(new_report.severity), 
-                            new_report.report_datetime) # Insert it into database
+                            new_report.report_datetime,
+                            park_id,
+                            approval_status) # Insert it into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])

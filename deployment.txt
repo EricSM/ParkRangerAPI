@@ -1,0 +1,15 @@
+Run locally with:
+    python -m flask run
+
+Deployment process:
+
+Make sure to enter the venv when editing this project.
+https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
+
+1 ) az-login
+
+2 ) deploy with the following command:
+
+az webapp create -g ParkWatch -p ASP-ParkWatch-9dbf -n parkwatch-backend --runtime "python|3.7" --deployment-local-git
+
+3) TODO(Ian): Add git steps
