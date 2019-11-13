@@ -3,7 +3,7 @@ import datetime as dt
 import jsonpickle
 
 class Report:
-    def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status):
+    def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
         self.id = 0 # Int
         self.park_id = park_id
         self.loc_name = loc_name # String
@@ -13,7 +13,7 @@ class Report:
         self.severity = severity # Int
         self.closure = closure # Bit
         self.report_datetime = dt.datetime.now()# .strftime("%m/%d/%Y, %H:%M:%S") # String
-        self.approval_status = approval_status # Bit
+        self.approved_status = approved_status # Bit
 
     def set_id(self, id):
         self.id = id
@@ -37,7 +37,7 @@ class ReportHandler:
         self.temp_fake_db = []
         self.report_dictionary = {}
 
-    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status):
+    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
 
@@ -52,7 +52,7 @@ class ReportHandler:
             Returns the id of the newly created report
         """
 
-        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status) # Create a new report
+        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
 
         insert_sql_string = "Insert Into Reports(loc_name, park_id, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?,?)"
         self.cursor.execute(insert_sql_string, 
@@ -65,7 +65,7 @@ class ReportHandler:
                             str(new_report.severity), 
                             new_report.report_datetime,
                             park_id,
-                            approval_status) # Insert it into database
+                            approved_status) # Insert it into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
@@ -104,7 +104,7 @@ class ReportHandler:
                                     rows.report_description,
                                     rows.severity,
                                     rows.closure,
-                                    rows.approval_status)
+                                    rows.approved_status)
             
             return fetched_report
 
