@@ -12,4 +12,6 @@ https://packaging.python.org/guides/installing-using-pip-and-virtual-environment
 
 az webapp create -g ParkWatch -p ASP-ParkWatch-9dbf -n parkwatch-backend --runtime "python|3.7" --deployment-local-git
 
-3) TODO(Ian): Add git steps
+3) now that you have created the app service you need to push to it
+
+git push azure <branch name>:master

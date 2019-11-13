@@ -16,7 +16,7 @@
 
 import jsonpickle
 
-from flask import Flask, jsonify, render_template, make_response, request, render_template
+from flask import Flask, jsonify, render_template, make_response, request, render_template, abort
 from flask_cors import CORS
 from controllers.report import Report, ReportHandler
 
@@ -26,11 +26,13 @@ cors = CORS(app)
 report_handler = ReportHandler()
 report_id = report_handler.create_report(
     'White Rim',
+    0,
     100.0,
     100.0,
     'Trail is closed due to flooding at mile 78.',
     5,
-    1
+    1,
+    0
 )
 
 @app.route('/pw/api/reports', methods=['GET', 'POST'])
@@ -74,7 +76,7 @@ def get_reports(park_id):
     Returns:
         A list of json report objects
     """
-    reports_list_json = report_handler.get_reports_list_json()
+    reports_list_json = report_handler.get_reports_list_json(park_id)
     return reports_list_json
 
 def get_report(park_id, report_id):
@@ -110,7 +112,8 @@ def create_task(request):
                      request.json['loc_long'],
                      request.json['description'],
                      request.json['severity'],
-                     request.json['closure'])
+                     request.json['closure'],
+                     0)
 
     return report_json
 

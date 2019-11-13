@@ -27,7 +27,7 @@ class ReportHandler:
         database = 'parkwatch-database'
         username = 'ranger'
         password = 'ParkWatch123!'
-        driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+        driver = 'Driver={ODBC Driver 13 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         cnxn = pyodbc.connect(driver)
 
         self.cnxn = cnxn
@@ -36,7 +36,7 @@ class ReportHandler:
         self.temp_fake_db = []
         self.report_dictionary = {}
 
-    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure):
+    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approval_status):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
 
@@ -79,7 +79,7 @@ class ReportHandler:
         self.temp_fake_db.append(new_report)
         self.report_dictionary[new_id] = new_report
 
-        return jsonpicke.encode(new_report)
+        return jsonpickle.encode(new_report)
 
     def get_report(self, park_id, id):
         """
@@ -93,7 +93,7 @@ class ReportHandler:
 
         selection_string = "Select * Where park_id = {} AND id = {}".format(park_id, id)
         self.cursor.execute(selection_string)
-        rows = cursor.fetchall()
+        rows = self.cursor.fetchall()
 
         if rows:
             fetched_report = Report(rows.loc_name,
