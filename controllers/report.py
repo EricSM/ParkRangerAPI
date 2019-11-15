@@ -109,6 +109,13 @@ class ReportHandler:
 
         return None
     
+    def delete_report(self, park_id, id):
+        delete_string = "Delete from Reports where park_id = ? AND ID = ?"
+        self.cursor.execute(delete_string, park_id, id)
+        self.cursor.commit()
+        
+        print('report {0} deleted from park {1}'.format(id, park_id))
+
     def get_report_json(self, park_id, id):
         """
         Returns the report associated with the given id as a JSON
