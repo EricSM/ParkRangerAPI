@@ -145,7 +145,8 @@ class ReportHandler:
                             description, 
                             str(severity), 
                             str(closure), 
-                            approved_status)
+                            approved_status,
+                            id)
         self.cursor.commit()
         
         print('report {} updated'.format(id))
