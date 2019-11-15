@@ -110,6 +110,15 @@ class ReportHandler:
         return None
     
     def delete_report(self, park_id, id):
+        """
+        Deletes the report associated with the given ID.
+
+        Args:
+            id: The ID of the report
+        Returns:
+            None
+        """
+        
         delete_string = "Delete from Reports where park_id = ? AND ID = ?"
         self.cursor.execute(delete_string, park_id, id)
         self.cursor.commit()
