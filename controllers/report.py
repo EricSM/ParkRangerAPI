@@ -111,6 +111,22 @@ class ReportHandler:
         return None
     
     def update_report(self, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
+        """
+        Updates the report associated with the given ID with the given arguments.
+
+        Args:
+            id: The ID of the report
+            loc_name: The name of the location (str)
+            loc_lat: The latitude of the location (float)
+            loc_long: The longitude of the location (float)
+            description: A short description of the issue (str)
+            severity: The severity of the issue from 1-10 (int)
+            closure: 0 for not closed, 1 for closed (bit)
+            approved_status: 0 for not approved, 1 for approved (bit)
+        Returns:
+            None
+        """
+
         update_string = textwrap.dedent("""
             update Reports 
             set loc_name = ?, 
