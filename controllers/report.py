@@ -1,6 +1,7 @@
 import pyodbc
 import datetime as dt
 import jsonpickle
+import textwrap
 
 class Report:
     def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
@@ -109,6 +110,30 @@ class ReportHandler:
 
         return None
     
+    def update_report(self, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
+        update_string = textwrap.dedent("""
+            update Reports 
+            set loc_name = ?, 
+                loc_lat = ?, 
+                loc_long = ?, 
+                report_description = ?, 
+                severity = ?, 
+                closure = ?, 
+                approved_status = ?
+            where ID = ?"
+        """)
+        self.cursor.execute(update_string, 
+                            loc_name, 
+                            str(loc_lat), 
+                            str(loc_long), 
+                            description, 
+                            str(severity), 
+                            str(closure), 
+                            approved_status)
+        self.cursor.commit()
+        
+        print('report {} updated'.format(id))
+
     def delete_report(self, park_id, id):
         """
         Deletes the report associated with the given ID.
@@ -118,7 +143,7 @@ class ReportHandler:
         Returns:
             None
         """
-        
+
         delete_string = "Delete from Reports where park_id = ? AND ID = ?"
         self.cursor.execute(delete_string, park_id, id)
         self.cursor.commit()
