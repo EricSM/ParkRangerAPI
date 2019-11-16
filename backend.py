@@ -62,7 +62,7 @@ def get_report_base():
             return get_report(int(park_id), int(report_id))
 
     elif request.method == 'POST':
-        return create_task(request)
+        return create_report(request)
 
     abort(404)
 
@@ -92,7 +92,7 @@ def get_report(park_id, report_id):
     report_json = report_handler.get_report_json(park_id, report_id)
     return report_json
 
-def create_task(request):
+def create_report(request):
     """
     Calls report handler to create a new report object, puts it into the db, and returns it
 
