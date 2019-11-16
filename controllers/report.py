@@ -91,23 +91,51 @@ class ReportHandler:
         Returns:
             Report object
         """
-
-        selection_string = "Select * Where park_id = {} AND id = {}".format(park_id, id)
+        print("Get Report")
+        selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
+        print(selection_string)
         self.cursor.execute(selection_string)
-        rows = self.cursor.fetchall()
-
-        if rows:
-            fetched_report = Report(rows.loc_name,
-                                    rows.park_id,
-                                    rows.loc_lat,
-                                    rows.loc_long,
-                                    rows.report_description,
-                                    rows.severity,
-                                    rows.closure,
-                                    rows.approved_status)
+        result = self.cursor.fetchone()
+        print(result)
+        if result:
+            fetched_report = Report(result.loc_name,
+                                    result.park_id,
+                                    result.loc_lat,
+                                    result.loc_long,
+                                    result.report_description,
+                                    result.severity,
+                                    result.closure,
+                                    result.approved_status)
             
             return fetched_report
 
+        return None
+
+    def get_reports(self, park_id):
+        """
+        Returns the reports associated with the given park id
+
+        Args:
+            park_id: The id of the park
+        Returns:
+            Array of Report objects
+        """
+        selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {}".format(park_id)
+        self.cursor.execute(selection_string)
+        results = self.cursor.fetchall()
+        reports = []
+        if results:
+            for result in results:
+                fetched_report = Report(result.loc_name,
+                                        result.park_id,
+                                        result.loc_lat,
+                                        result.loc_long,
+                                        result.report_description,
+                                        result.severity,
+                                        result.closure,
+                                        result.approved_status)
+                reports.append(fetched_report)
+            return reports
         return None
     
     def update_report(self, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
@@ -182,12 +210,8 @@ class ReportHandler:
         """
         TODO(Ian): This should return all cached reports
         """
-        reports = []
-
-        for r in self.temp_fake_db:
-            reports.append(jsonpickle.encode(r))
     
-        return jsonpickle.encode(reports)
+        return jsonpickle.encode(self.get_reports(park_id))
 
 
 
