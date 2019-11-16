@@ -1,6 +1,7 @@
 import pyodbc
 import datetime as dt
 import jsonpickle
+import textwrap
 
 class Report:
     def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
@@ -109,6 +110,63 @@ class ReportHandler:
 
         return None
     
+    def update_report(self, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
+        """
+        Updates the report associated with the given ID with the given arguments.
+
+        Args:
+            id: The ID of the report
+            loc_name: The name of the location (str)
+            loc_lat: The latitude of the location (float)
+            loc_long: The longitude of the location (float)
+            description: A short description of the issue (str)
+            severity: The severity of the issue from 1-10 (int)
+            closure: 0 for not closed, 1 for closed (bit)
+            approved_status: 0 for not approved, 1 for approved (bit)
+        Returns:
+            None
+        """
+
+        update_string = textwrap.dedent("""
+            update Reports 
+            set loc_name = ?, 
+                loc_lat = ?, 
+                loc_long = ?, 
+                report_description = ?, 
+                severity = ?, 
+                closure = ?, 
+                approved_status = ?
+            where ID = ?"
+        """)
+        self.cursor.execute(update_string, 
+                            loc_name, 
+                            str(loc_lat), 
+                            str(loc_long), 
+                            description, 
+                            str(severity), 
+                            str(closure), 
+                            approved_status,
+                            id)
+        self.cursor.commit()
+        
+        print('report {} updated'.format(id))
+
+    def delete_report(self, park_id, id):
+        """
+        Deletes the report associated with the given ID.
+
+        Args:
+            id: The ID of the report
+        Returns:
+            None
+        """
+
+        delete_string = "Delete from Reports where park_id = ? AND ID = ?"
+        self.cursor.execute(delete_string, park_id, id)
+        self.cursor.commit()
+        
+        print('report {0} deleted from park {1}'.format(id, park_id))
+
     def get_report_json(self, park_id, id):
         """
         Returns the report associated with the given id as a JSON
