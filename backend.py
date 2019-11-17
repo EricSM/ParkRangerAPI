@@ -25,14 +25,14 @@ cors = CORS(app)
 
 report_handler = ReportHandler()
 report_id = report_handler.create_report(
-    'White Rim',
-    1,
-    100.0,
-    100.0,
-    'Trail is closed due to flooding at mile 78.',
-    5,
-    1,
-    1
+    'White Rim', #name
+    1, #park id
+    100.0, #long
+    100.0, #lat
+    'Trail is closed due to flooding at mile 78.', #description
+    5, #severity
+    1, #closure
+    1 #approved status
 )
 
 @app.route('/pw/api/reports', methods=['GET', 'POST'])
@@ -63,8 +63,8 @@ def get_report_base():
 
     elif request.method == 'POST':
         return create_report(request)
-
-    abort(404)
+    else:
+        abort(404)
 
     
 def get_reports(park_id):
@@ -104,7 +104,7 @@ def create_report(request):
     if not request.json or not 'loc_name' in request.json:
         abort(400)
     
-    park_id = int(request.args.get('id'))
+    park_id = int(request.args.get('park'))
 
     report_json = report_handler.create_report(request.json['loc_name'],
                      park_id,
