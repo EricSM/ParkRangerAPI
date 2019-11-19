@@ -143,10 +143,11 @@ class ReportHandler:
     
     def update_report(self, park_id, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
         """
-        Updates the report associated with the given ID with the given arguments.
+        Updates the report associated with the given ID with the given arguments, then returns the report.
 
         Args:
             id: The ID of the report
+            park_id: The id of the park
             loc_name: The name of the location (str)
             loc_lat: The latitude of the location (float)
             loc_long: The longitude of the location (float)
