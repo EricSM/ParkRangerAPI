@@ -131,7 +131,7 @@ def get_rules_base():
             return get_rules(int(park_id))
         
         if park_id and not rule_id and active:
-            return get_active_rules(int(park_id))
+            return get_active_rules(int(park_id), active)
 
         elif park_id and rule_id: # If park and report id were provided then return specified report
             return get_rule(int(park_id), int(rule_id))
@@ -160,7 +160,7 @@ def get_rules(park_id):
 def create_rule(request):
     return
 
-def get_active_rules(park_id):
+def get_active_rules(park_id, active):
     """
     Helper function that gets all active rules associated with the park
 
@@ -169,7 +169,7 @@ def get_active_rules(park_id):
     Returns:
         A list of json rule objects
     """
-    report_json = weather_handler.get_active_rules_json(park_id)
+    report_json = weather_handler.get_active_rules_json(park_id, active)
     return report_json
 
 @app.route('/')
