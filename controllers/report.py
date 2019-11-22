@@ -22,6 +22,9 @@ class Report:
     def insert_string(self):
         return "{}, {}, {}, {}, {}, {}, {}".format(self.loc_name, str(self.loc_lat), str(self.loc_long), self.report_description, str(self.severity), str(self.closure), self.report_datetime)
 
+    def __eq__(self, other):
+        return self.id == other.id
+
 class ReportHandler:
     def __init__(self):
         server = 'parkwatch-db-server.database.windows.net'
@@ -138,12 +141,13 @@ class ReportHandler:
             return reports
         return None
     
-    def update_report(self, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
+    def update_report(self, park_id, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
         """
-        Updates the report associated with the given ID with the given arguments.
+        Updates the report associated with the given ID with the given arguments, then returns the report.
 
         Args:
             id: The ID of the report
+            park_id: The id of the park
             loc_name: The name of the location (str)
             loc_lat: The latitude of the location (float)
             loc_long: The longitude of the location (float)
@@ -152,8 +156,10 @@ class ReportHandler:
             closure: 0 for not closed, 1 for closed (bit)
             approved_status: 0 for not approved, 1 for approved (bit)
         Returns:
-            None
+            The updated report
         """
+        
+        updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Update the old report
 
         update_string = textwrap.dedent("""
             update Reports 
@@ -177,7 +183,12 @@ class ReportHandler:
                             id)
         self.cursor.commit()
         
+        self.temp_fake_db.remove(updated_report)
+        self.temp_fake_db.append(updated_report)
+        self.report_dictionary[id] = updated_report
+
         print('report {} updated'.format(id))
+        return jsonpickle.encode(updated_report)
 
     def delete_report(self, park_id, id):
         """
