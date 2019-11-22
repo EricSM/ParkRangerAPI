@@ -7,4 +7,4 @@ curl -i http://localhost:5000/pw/api/reports?park=0
 curl -i -H "Content-Type: application/json" -X POST -d "{\"loc_name\":\"Test name\",\"loc_lat\":100.0, \"loc_long\":100.0,\"description\":\"A test description\",\"severity\":10,\"closure\":1}" http://localhost:5000/pw/api/reports?park=1
 
 # Azure
-curl -i -H "Content-Type: application/json" -X POST -d '{"loc_name":"Test name","loc_lat":100.0, "loc_long":100.0,"description":"A test description","severity":10,"closure":1}' https://parkwatch-backend.azurewebsites.net/pw/api/reports?park=0
+curl -i -H "Content-Type: application/json" -X POST -d "{\"loc_name\":\"Test name\",\"loc_lat\":100.0, \"loc_long\":100.0,\"description\":\"A test description\",\"severity\":10,\"closure\":1}" https://parkwatch-backend.azurewebsites.net/pw/api/reports?park=1

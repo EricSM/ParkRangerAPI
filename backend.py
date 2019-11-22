@@ -19,21 +19,14 @@ import jsonpickle
 from flask import Flask, jsonify, render_template, make_response, request, render_template, abort
 from flask_cors import CORS
 from controllers.report import Report, ReportHandler
+from controllers.weather import Rule, WeatherHandler
 
 app = Flask(__name__, template_folder="templates")
 cors = CORS(app)
 
 report_handler = ReportHandler()
-report_id = report_handler.create_report(
-    'White Rim', #name
-    1, #park id
-    100.0, #long
-    100.0, #lat
-    'Trail is closed due to flooding at mile 78.', #description
-    5, #severity
-    1, #closure
-    1 #approved status
-)
+weather_handler = WeatherHandler()
+weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, [(100.0, 100.0), (200.0, 200.0)])
 
 @app.route('/pw/api/reports', methods=['GET', 'POST'])
 def get_report_base():
@@ -115,6 +108,61 @@ def create_report(request):
                      request.json['closure'],
                      0)
 
+    return report_json
+
+@app.route('/pw/api/weather', methods=['GET', 'POST'])
+def get_rules_base():
+    """
+    If the method is POST then creates a new report object for that park.
+
+    Args:
+        None
+    Returns:
+        GET - A single json report
+        GET - A list of json reports
+        POST - The new report
+    """
+    park_id = request.args.get('park')
+    rule_id = request.args.get('id')
+    active = request.args.get('active')
+
+    if request.method == 'GET':
+        if park_id and not rule_id and not active: # If only the park was provided then get list of all reports
+            return get_all_rules(int(park_id))
+        
+        if park_id and not rule_id and active:
+            return get_all_active_rules(int(park_id))
+
+        elif park_id and report_id: # If park and report id were provided then return specified report
+            return get_rules(int(park_id), int(report_id))
+
+    elif request.method == 'POST':
+        return create_rule(request)
+    else:
+        abort(404)
+
+def get_rules(park_id):
+    """
+    Helper function that gets all rules associated with the park
+
+    Args:
+        park_id: The id of the park
+    Returns:
+        A list of json rule objects
+    """
+    rules_list_json = report_handler.get_rules_json(park_id)
+    return rules_list_json
+
+def get_active_rules(park_id):
+    """
+    Helper function that gets all active rules associated with the park
+
+    Args:
+        park_id: The id of the park
+    Returns:
+        A list of json rule objects
+    """
+    report_json = report_handler._active_rules_json(park_id, report_id)
     return report_json
 
 @app.route('/')
