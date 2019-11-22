@@ -24,7 +24,7 @@ from controllers.weather import Rule, WeatherHandler
 app = Flask(__name__, template_folder="templates")
 cors = CORS(app)
 
-report_handler = ReportHandler()
+# report_handler = ReportHandler()
 weather_handler = WeatherHandler()
 weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, [(100.0, 100.0), (200.0, 200.0)])
 
@@ -128,10 +128,10 @@ def get_rules_base():
 
     if request.method == 'GET':
         if park_id and not rule_id and not active: # If only the park was provided then get list of all reports
-            return get_all_rules(int(park_id))
+            return get_rules(int(park_id))
         
         if park_id and not rule_id and active:
-            return get_all_active_rules(int(park_id))
+            return get_active_rules(int(park_id))
 
         elif park_id and report_id: # If park and report id were provided then return specified report
             return get_rules(int(park_id), int(report_id))
@@ -162,7 +162,7 @@ def get_active_rules(park_id):
     Returns:
         A list of json rule objects
     """
-    report_json = report_handler._active_rules_json(park_id, report_id)
+    report_json = report_handler.get_active_rules_json(park_id, report_id)
     return report_json
 
 @app.route('/')
