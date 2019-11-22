@@ -98,10 +98,10 @@ class WeatherHandler:
         return triggered_rules
 
     def get_rules(self, park_id):
-        return [r for rules in self.rules if r.park_id == park_id]
+        return [r for r in self.rules if r.park_id == park_id]
 
     def get_active_rules(self, park_id):
-        return [r for rules in self.rules if r.park_id == park_id and r.active == True]
+        return [r for r in self.rules if r.park_id == park_id and r.active == True]
 
     def get_rules_json(self, park_id):
         return jsonpickle.encode(self.get_rules(park_id))

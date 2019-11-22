@@ -133,13 +133,17 @@ def get_rules_base():
         if park_id and not rule_id and active:
             return get_active_rules(int(park_id))
 
-        elif park_id and report_id: # If park and report id were provided then return specified report
-            return get_rules(int(park_id), int(report_id))
+        elif park_id and rule_id: # If park and report id were provided then return specified report
+            return get_rule(int(park_id), int(rule_id))
 
     elif request.method == 'POST':
         return create_rule(request)
     else:
         abort(404)
+
+
+def get_rule(park_id, rule_id):
+    return
 
 def get_rules(park_id):
     """
@@ -150,8 +154,11 @@ def get_rules(park_id):
     Returns:
         A list of json rule objects
     """
-    rules_list_json = report_handler.get_rules_json(park_id)
+    rules_list_json = weather_handler.get_rules_json(park_id)
     return rules_list_json
+
+def create_rule(request):
+    return
 
 def get_active_rules(park_id):
     """
@@ -162,7 +169,7 @@ def get_active_rules(park_id):
     Returns:
         A list of json rule objects
     """
-    report_json = report_handler.get_active_rules_json(park_id, report_id)
+    report_json = weather_handler.get_active_rules_json(park_id)
     return report_json
 
 @app.route('/')
