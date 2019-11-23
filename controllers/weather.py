@@ -57,6 +57,25 @@ class WeatherHandler:
             description: The description returned when this rule is broken
         """
         new_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
+        insert_sql_string = textwrap.dedent("""
+            Insert Into Reports(park_id, area_name, condition, 
+                area_lat, area_long, 
+                interval_value, interval_symbol, 
+                map_path, rule_desc, activated) 
+            Values (?,?,?,?,?,?,?,?,?,?)
+        """)
+        self.cursor.execute(insert_sql_string, 
+                            new_rule.park_id, 
+                            new_rule.name, 
+                            new_rule.condition_type, 
+                            str(new_rule.center_lat), 
+                            str(new_rule.center_long), 
+                            new_rule.condition_interval_value, 
+                            new_rule.condition_interval_symbol,
+                            new_rule.path,
+                            new_rule.description,
+                            str(new_rule.active)) # Insert it into database
+        self.cnxn.commit()
 
         self.rules.append(new_rule)
 
