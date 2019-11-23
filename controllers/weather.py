@@ -100,14 +100,15 @@ class WeatherHandler:
     def get_rules(self, park_id):
         return [r for r in self.rules if r.park_id == park_id]
 
-    def get_active_rules(self, park_id):
-        return [r for r in self.rules if r.park_id == park_id and r.active == True]
+    def get_active_rules(self, park_id, active):
+        print(active)
+        return [r for r in self.rules if r.park_id == park_id if r.active == int(active)]
 
     def get_rules_json(self, park_id):
         return jsonpickle.encode(self.get_rules(park_id))
 
-    def get_active_rules_json(self, park_id):
-        return jsonpickle.encode(self.get_active_rules(park_id))
+    def get_active_rules_json(self, park_id, active):
+        return jsonpickle.encode(self.get_active_rules(park_id, active))
 
 
 class Rule:
@@ -138,7 +139,7 @@ class Rule:
         self.park_id = park_id
         self.path = path
         self.center_lat, self.center_long = self.get_center_cords(path)
-        self.active = False
+        self.active = 0
 
     def get_center_cords(self, path):
         # [{lat: 36.86149, lng: 30.63743},{lat: 36.86341, lng: 30.72463}]
