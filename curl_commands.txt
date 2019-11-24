@@ -8,3 +8,6 @@ curl -i -H "Content-Type: application/json" -X POST -d "{\"loc_name\":\"Test nam
 
 # Azure
 curl -i -H "Content-Type: application/json" -X POST -d "{\"loc_name\":\"Test name\",\"loc_lat\":100.0, \"loc_long\":100.0,\"description\":\"A test description\",\"severity\":10,\"closure\":1}" https://parkwatch-backend.azurewebsites.net/pw/api/reports?park=1
+
+# POST Rule
+

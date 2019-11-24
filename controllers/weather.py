@@ -33,10 +33,6 @@ class WeatherHandler:
         self.units = units
         self.rules = []
 
-        server = 'parkwatch-db-server.database.windows.net'
-        database = 'parkwatch-database'
-        username = 'ranger'
-        password = 'ParkWatch123!'
         # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd=ParkWatch123!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         cnxn = pyodbc.connect(driver)
@@ -132,6 +128,8 @@ class WeatherHandler:
             map_path,
             rule_desc,
             activated
+        From
+            WeatherRules
         Where
             park_id = ?
         """)
@@ -142,13 +140,13 @@ class WeatherHandler:
 
         if results:
             for result in results:
-                fetched_rule = Rule(result.condition_type,
+                fetched_rule = Rule(result.condition,
                                     result.interval_value,
                                     result.interval_symbol,
                                     result.rule_desc,
                                     result.area_name,
                                     result.park_id,
-                                    result.path
+                                    result.map_path
                                     )
                 fetched_rule.rule_id = result.rule_id   
                 rules.append(fetched_rule)
@@ -169,24 +167,27 @@ class WeatherHandler:
             map_path,
             rule_desc,
             activated
+        From
+            WeatherRules
         Where
-            park_id = ?,
+            park_id = ?
+            AND
             activated = ?
         """)
 
-        self.cursor.execute(selection_string, park_id. active)
+        self.cursor.execute(selection_string, park_id, active)
         results = self.cursor.fetchall()
         rules = []
 
         if results:
             for result in results:
-                fetched_rule = Rule(result.condition_type,
+                fetched_rule = Rule(result.condition,
                                     result.interval_value,
                                     result.interval_symbol,
                                     result.rule_desc,
                                     result.area_name,
                                     result.park_id,
-                                    result.path
+                                    result.map_path
                                     )
                 fetched_rule.rule_id = result.rule_id   
                 rules.append(fetched_rule)
@@ -199,6 +200,46 @@ class WeatherHandler:
     def get_active_rules_json(self, park_id, active):
         return jsonpickle.encode(self.get_active_rules(park_id, active))
 
+    def get_rule(self, park_id, rule_id):
+        selection_string = textwrap.dedent("""
+        Select
+            rule_id,
+            park_id,
+            area_name,
+            condition,
+            area_lat,
+            area_long,
+            interval_value,
+            interval_symbol,
+            map_path,
+            rule_desc,
+            activated
+        From
+            WeatherRules
+        Where
+            park_id = ?
+            AND
+            rule_id = ?
+        """)
+
+        self.cursor.execute(selection_string, park_id, rule_id)
+        result = self.cursor.fetchone()
+
+        if result:
+            fetched_rule = Rule(result.condition,
+                                    result.interval_value,
+                                    result.interval_symbol,
+                                    result.rule_desc,
+                                    result.area_name,
+                                    result.park_id,
+                                    result.map_path
+                                    )
+            fetched_rule.rule_id = result.rule_id   
+            return fetched_rule
+        return None
+
+    def get_rule_json(self, park_id, ruke_id):
+        return jsonpickle.encode(self.get_rule(park_id, ruke_id))
 
 class Rule:
     """
@@ -220,12 +261,12 @@ class Rule:
             condition_interval_symbol: The type of inequality (leq = less than or equal to, eq = ==, etc..)
             description: A short discription of what the rule describes
         """
-        self.condition_type = condition_type
-        self.condition_interval_value = condition_interval_value
-        self.condition_interval_symbol = condition_interval_symbol
-        self.description = description
-        self.name = name
-        self.park_id = park_id
+        self.condition_type = condition_type #str
+        self.condition_interval_value = int(condition_interval_value) #int
+        self.condition_interval_symbol = condition_interval_symbol #str
+        self.description = description #str
+        self.name = name #str
+        self.park_id = int(park_id)
         self.path = jsonpickle.decode(path)
         self.center_lat, self.center_long = self.get_center_cords(self.path)
         self.active = 0

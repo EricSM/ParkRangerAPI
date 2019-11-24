@@ -27,10 +27,6 @@ class Report:
 
 class ReportHandler:
     def __init__(self):
-        server = 'parkwatch-db-server.database.windows.net'
-        database = 'parkwatch-database'
-        username = 'ranger'
-        password = 'ParkWatch123!'
         # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd=ParkWatch123!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         cnxn = pyodbc.connect(driver)
@@ -64,8 +60,8 @@ class ReportHandler:
                             str(new_report.loc_lat), 
                             str(new_report.loc_long), 
                             new_report.report_description, 
+                            new_report.severity,
                             str(new_report.closure), 
-                            str(new_report.severity), 
                             new_report.report_datetime,
                             new_report.park_id,
                             approved_status) # Insert it into database

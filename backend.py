@@ -143,7 +143,12 @@ def get_rules_base():
 
 
 def get_rule(park_id, rule_id):
-    return
+    fetched_rule = weather_handler.get_rule_json(park_id, rule_id)
+
+    if not fetched_rule:
+        abort(404)
+
+    return fetched_rule
 
 def get_rules(park_id):
     """
@@ -158,7 +163,27 @@ def get_rules(park_id):
     return rules_list_json
 
 def create_rule(request):
-    return
+    if not request.json or not 'name' in request.json:
+        abort(400)
+    
+    park_id = int(request.args.get('park'))
+
+    # Example post json
+
+    #"{"condition_interval_symbol\":\">\",\"condition_interval_value\":0,
+    # \"condition_type\":\"rain\",\"description\":\"Test description\",
+    # \"name\":\"Test Name\", \"path\":[{\"lat\":36.86149,\"lng\":30.63743},{\"lat\":36.86341,\"lng\":30.72463}]}"
+
+    report_json = weather_handler.add_rule(request.json['condition_type'],
+                     request.json['condition_interval_value'],
+                     request.json['condition_interval_symbol'],
+                     request.json['description'],
+                     request.json['name'],
+                     park_id,
+                     request.json['path']
+                     )
+
+    return report_json
 
 def get_active_rules(park_id, active):
     """
