@@ -24,9 +24,9 @@ from controllers.weather import Rule, WeatherHandler
 app = Flask(__name__, template_folder="templates")
 cors = CORS(app)
 
-# report_handler = ReportHandler()
+report_handler = ReportHandler()
 weather_handler = WeatherHandler()
-weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, [(100.0, 100.0), (200.0, 200.0)])
+# weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, "[{\"lat\": 36.86149, \"lng\": 30.63743},{\"lat\": 36.86341, \"lng\": 30.72463}]")
 
 @app.route('/pw/api/reports', methods=['GET', 'POST'])
 def get_report_base():

@@ -33,16 +33,16 @@ class WeatherHandler:
         self.units = units
         self.rules = []
 
-        # server = 'parkwatch-db-server.database.windows.net'
-        # database = 'parkwatch-database'
-        # username = 'ranger'
-        # password = 'ParkWatch123!'
-        # # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
-        # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd=ParkWatch123!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
-        # cnxn = pyodbc.connect(driver)
+        server = 'parkwatch-db-server.database.windows.net'
+        database = 'parkwatch-database'
+        username = 'ranger'
+        password = 'ParkWatch123!'
+        # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+        driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd=ParkWatch123!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+        cnxn = pyodbc.connect(driver)
 
-        # self.cnxn = cnxn
-        # self.cursor = cnxn.cursor()
+        self.cnxn = cnxn
+        self.cursor = cnxn.cursor()
 
     def add_rule(self, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):
         """
@@ -58,7 +58,7 @@ class WeatherHandler:
         """
         new_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
         insert_sql_string = textwrap.dedent("""
-            Insert Into Reports(park_id, area_name, condition, 
+            Insert Into WeatherRules(park_id, area_name, condition, 
                 area_lat, area_long, 
                 interval_value, interval_symbol, 
                 map_path, rule_desc, activated) 
@@ -72,12 +72,14 @@ class WeatherHandler:
                             str(new_rule.center_long), 
                             new_rule.condition_interval_value, 
                             new_rule.condition_interval_symbol,
-                            new_rule.path,
+                            jsonpickle.encode(new_rule.path),
                             new_rule.description,
-                            str(new_rule.active)) # Insert it into database
-        self.cnxn.commit()
+                            new_rule.active) # Insert it into database
 
-        self.rules.append(new_rule)
+        self.cnxn.commit()
+        self.cursor.execute("Select @@IDENTITY")
+        new_id = int(self.cursor.fetchone()[0])
+        new_rule.rule_id = new_id
 
         return jsonpickle.encode(new_rule)
 
@@ -117,11 +119,79 @@ class WeatherHandler:
         return triggered_rules
 
     def get_rules(self, park_id):
-        return [r for r in self.rules if r.park_id == park_id]
+        selection_string = textwrap.dedent("""
+        Select
+            rule_id,
+            park_id,
+            area_name,
+            condition,
+            area_lat,
+            area_long,
+            interval_value,
+            interval_symbol,
+            map_path,
+            rule_desc,
+            activated
+        Where
+            park_id = ?
+        """)
+
+        self.cursor.execute(selection_string, park_id)
+        results = self.cursor.fetchall()
+        rules = []
+
+        if results:
+            for result in results:
+                fetched_rule = Rule(result.condition_type,
+                                    result.interval_value,
+                                    result.interval_symbol,
+                                    result.rule_desc,
+                                    result.area_name,
+                                    result.park_id,
+                                    result.path
+                                    )
+                fetched_rule.rule_id = result.rule_id   
+                rules.append(fetched_rule)
+            return rules
+        return None
 
     def get_active_rules(self, park_id, active):
-        print(active)
-        return [r for r in self.rules if r.park_id == park_id if r.active == int(active)]
+        selection_string = textwrap.dedent("""
+        Select
+            rule_id,
+            park_id,
+            area_name,
+            condition,
+            area_lat,
+            area_long,
+            interval_value,
+            interval_symbol,
+            map_path,
+            rule_desc,
+            activated
+        Where
+            park_id = ?,
+            activated = ?
+        """)
+
+        self.cursor.execute(selection_string, park_id. active)
+        results = self.cursor.fetchall()
+        rules = []
+
+        if results:
+            for result in results:
+                fetched_rule = Rule(result.condition_type,
+                                    result.interval_value,
+                                    result.interval_symbol,
+                                    result.rule_desc,
+                                    result.area_name,
+                                    result.park_id,
+                                    result.path
+                                    )
+                fetched_rule.rule_id = result.rule_id   
+                rules.append(fetched_rule)
+            return rules
+        return None
 
     def get_rules_json(self, park_id):
         return jsonpickle.encode(self.get_rules(park_id))
@@ -156,17 +226,18 @@ class Rule:
         self.description = description
         self.name = name
         self.park_id = park_id
-        self.path = path
-        self.center_lat, self.center_long = self.get_center_cords(path)
+        self.path = jsonpickle.decode(path)
+        self.center_lat, self.center_long = self.get_center_cords(self.path)
         self.active = 0
+        self.rule_id = None
 
     def get_center_cords(self, path):
         # [{lat: 36.86149, lng: 30.63743},{lat: 36.86341, lng: 30.72463}]
         avg_lat = 0.0
         avg_long = 0.0
         for p in path:
-            avg_lat += float(p[0])
-            avg_long += float(p[1])
+            avg_lat += float(p['lat'])
+            avg_long += float(p['lng'])
         
         avg_lat /= len(path)
         avg_long /= len(path)

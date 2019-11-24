@@ -73,7 +73,6 @@ class ReportHandler:
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
         new_report.set_id(new_id)
-        self.cnxn.commit()
 
         # Commit report with new id
         # update_report_id_string = "Update Reports Set id = " + str(new_id) +" Where id = " + str(new_id)
