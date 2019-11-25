@@ -201,7 +201,8 @@ def get_active_rules(park_id, active):
     return report_json
 
 def delete_report(park_id, report_id):
-    return report_handler.delete_report(park_id, report_id)
+    result = report_handler.delete_report(park_id, report_id)
+    return app.response_class(json.dumps(result), content_type='application/json')
 
 @app.route('/')
 def home():
