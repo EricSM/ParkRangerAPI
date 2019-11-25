@@ -197,11 +197,16 @@ class ReportHandler:
             None
         """
 
-        delete_string = "Delete from Reports where park_id = ? AND ID = ?"
-        self.cursor.execute(delete_string, park_id, id)
-        self.cursor.commit()
-        
-        print('report {0} deleted from park {1}'.format(id, park_id))
+        try:
+            delete_string = "Delete from Reports where park_id = ? AND ID = ?"
+            self.cursor.execute(delete_string, park_id, id)
+            self.cursor.commit()
+            print('report {0} deleted from park {1}'.format(id, park_id))
+            return True
+
+        except:
+            return False
+
 
     def get_report_json(self, park_id, id):
         """

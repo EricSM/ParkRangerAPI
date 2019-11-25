@@ -28,7 +28,7 @@ report_handler = ReportHandler()
 weather_handler = WeatherHandler()
 # weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, "[{\"lat\": 36.86149, \"lng\": 30.63743},{\"lat\": 36.86341, \"lng\": 30.72463}]")
 
-@app.route('/pw/api/reports', methods=['GET', 'POST'])
+@app.route('/pw/api/reports', methods=['GET', 'POST', 'DEL'])
 def get_report_base():
     """
     Base method that handles all requests ending in /reports. 
@@ -56,6 +56,9 @@ def get_report_base():
 
     elif request.method == 'POST':
         return create_report(request)
+    elif request.method == 'DEL':
+        if park_id and report_id:
+            return delete_report(park_id, report_id)
     else:
         abort(404)
 
@@ -110,7 +113,7 @@ def create_report(request):
 
     return report_json
 
-@app.route('/pw/api/weather', methods=['GET', 'POST'])
+@app.route('/pw/api/weather', methods=['GET', 'POST', 'DEL'])
 def get_rules_base():
     """
     If the method is POST then creates a new report object for that park.
@@ -196,6 +199,9 @@ def get_active_rules(park_id, active):
     """
     report_json = weather_handler.get_active_rules_json(park_id, active)
     return report_json
+
+def delete_report(park_id, report_id):
+    return report_handler.delete_report(park_id, report_id)
 
 @app.route('/')
 def home():
