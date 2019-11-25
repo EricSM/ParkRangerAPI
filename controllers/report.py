@@ -27,6 +27,7 @@ class Report:
 
 class ReportHandler:
     def __init__(self):
+        global driver
         # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd=ParkWatch123!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=0;'
         pyodbc.pooling = False
@@ -57,25 +58,36 @@ class ReportHandler:
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
 
         insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?)"
-        self.cursor.execute(insert_sql_string, 
-                            new_report.loc_name, 
-                            str(new_report.loc_lat), 
-                            str(new_report.loc_long), 
-                            new_report.report_description, 
-                            new_report.severity,
-                            str(new_report.closure), 
-                            new_report.report_datetime,
-                            new_report.park_id,
-                            approved_status) # Insert it into database
+        
+        
+        try:
+            return self.create_helper(insert_sql_string, new_report)
+        except Exception as e:
+            i = 0
+            print('Encountered database error.\nRetrying {}\n{}'.format(str(i), str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.create_helper(insert_sql_string, new_report)
+
+        return None
+
+    def create_helper(self, query, new_report):
+        self.cursor.execute(query, 
+                                new_report.loc_name, 
+                                str(new_report.loc_lat), 
+                                str(new_report.loc_long), 
+                                new_report.report_description, 
+                                new_report.severity,
+                                str(new_report.closure), 
+                                new_report.report_datetime,
+                                new_report.park_id,
+                                new_report.approved_status) # Insert it into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
         new_report.set_id(new_id)
-
-        # Commit report with new id
-        # update_report_id_string = "Update Reports Set id = " + str(new_id) +" Where id = " + str(new_id)
-        # self.cursor.execute(update_report_id_string)
-        # self.cnxn.commit()
 
         self.temp_fake_db.append(new_report)
         self.report_dictionary[new_id] = new_report
