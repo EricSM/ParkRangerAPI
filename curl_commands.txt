@@ -11,3 +11,8 @@ curl -i -H "Content-Type: application/json" -X POST -d "{\"loc_name\":\"Test nam
 
 # POST Rule
 
+
+delete report
+curl -X "DELETE" "https://parkwatch-backend.azurewebsites.net/pw/api/reports?park=1&id=0"
+
+
