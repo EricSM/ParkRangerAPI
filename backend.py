@@ -56,7 +56,8 @@ def get_report_base():
 
     elif request.method == 'POST':
         return create_report(request)
-    elif request.method == 'DEL':
+        
+    elif request.method == 'DELETE':
         if park_id and report_id:
             return delete_report(park_id, report_id)
     else:
