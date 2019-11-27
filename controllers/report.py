@@ -205,23 +205,38 @@ class ReportHandler:
                 approved_status = ?
             where ID = ?"
         """)
-        self.cursor.execute(update_string, 
-                            loc_name, 
-                            str(loc_lat), 
-                            str(loc_long), 
-                            description, 
-                            str(severity), 
-                            str(closure), 
-                            approved_status,
+        
+        try:
+            return self.update_helper(update_string, id, updated_report)
+        except Exception as e:
+            print('Encountered database error while updating a report.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+
+            return self.update_helper(update_string, id, updated_report)
+        return None
+
+
+    def update_helper(self, query, id, report):
+        self.cursor.execute(query, 
+                            report.loc_name, 
+                            str(report.loc_lat), 
+                            str(report.loc_long), 
+                            report.description, 
+                            str(report.severity), 
+                            str(report.closure), 
+                            report.approved_status,
                             id)
         self.cursor.commit()
         
-        self.temp_fake_db.remove(updated_report)
-        self.temp_fake_db.append(updated_report)
-        self.report_dictionary[id] = updated_report
+        self.temp_fake_db.remove(report)
+        self.temp_fake_db.append(report)
+        self.report_dictionary[id] = report
 
         print('report {} updated'.format(id))
-        return jsonpickle.encode(updated_report)
+        return jsonpickle.encode(report)
 
     def delete_report(self, park_id, id):
         """
