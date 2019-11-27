@@ -63,7 +63,7 @@ class ReportHandler:
         try:
             return self.create_helper(insert_sql_string, new_report)
         except Exception as e:
-            print('Encountered database error.\nRetrying.\n{}'.format(str(e)))
+            print('Encountered database error while creating a report.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
@@ -109,7 +109,7 @@ class ReportHandler:
         try:
             return self.get_helper(selection_string)
         except Exception as e:
-            print('Encountered database error.\nRetrying.\n{}'.format(str(e)))
+            print('Encountered database error while retrieving a report.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
@@ -148,7 +148,7 @@ class ReportHandler:
         try:
             return self.get_list_helper(selection_string)
         except Exception as e:
-            print('Encountered database error.\nRetrying.\n{}'.format(str(e)))
+            print('Encountered database error while retrieving a list of reports.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
