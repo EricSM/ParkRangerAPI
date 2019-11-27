@@ -245,19 +245,28 @@ class ReportHandler:
         Args:
             id: The ID of the report
         Returns:
-            None
+            True or False
         """
 
+        delete_string = "Delete from Reports where park_id = ? AND ID = ?"
+
         try:
-            delete_string = "Delete from Reports where park_id = ? AND ID = ?"
-            self.cursor.execute(delete_string, park_id, id)
-            self.cursor.commit()
-            print('report {0} deleted from park {1}'.format(id, park_id))
-            return True
+            return self.delete_helper(delete_string, park_id, id)
+        except Exception as e:
+            print('Encountered database error while deletig a report.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
 
-        except:
-            return False
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.delete_helper(delete_string, park_id, id)
 
+        return False
+
+    def delete_helper(self, query, park_id, id):
+        self.cursor.execute(query, park_id, id)
+        self.cursor.commit()
+        print('report {0} deleted from park {1}'.format(id, park_id))
+        return True
 
     def get_report_json(self, park_id, id):
         """
