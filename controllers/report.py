@@ -144,7 +144,21 @@ class ReportHandler:
             Array of Report objects
         """
         selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {}".format(park_id)
-        self.cursor.execute(selection_string)
+        
+        try:
+            return self.get_list_helper(selection_string)
+        except Exception as e:
+            print('Encountered database error.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+
+            return self.get_list_helper(selection_string)
+        return None
+    
+    def get_list_helper(self, query):
+        self.cursor.execute(query)
         results = self.cursor.fetchall()
         reports = []
         if results:
@@ -159,8 +173,7 @@ class ReportHandler:
                                         result.approved_status)
                 reports.append(fetched_report)
             return reports
-        return None
-    
+
     def update_report(self, park_id, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Updates the report associated with the given ID with the given arguments, then returns the report.
