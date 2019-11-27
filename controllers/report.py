@@ -63,8 +63,7 @@ class ReportHandler:
         try:
             return self.create_helper(insert_sql_string, new_report)
         except Exception as e:
-            i = 0
-            print('Encountered database error.\nRetrying {}\n{}'.format(str(i), str(e)))
+            print('Encountered database error.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
@@ -106,7 +105,21 @@ class ReportHandler:
         print("Get Report")
         selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
         print(selection_string)
-        self.cursor.execute(selection_string)
+
+        try:
+            return self.get_helper(selection_string)
+        except Exception as e:
+            print('Encountered database error.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.get_helper(selection_string)
+
+        return None
+
+    def get_helper(self, query):
+        self.cursor.execute(query)
         result = self.cursor.fetchone()
         print(result)
         if result:
@@ -120,8 +133,6 @@ class ReportHandler:
                                     result.approved_status)
             
             return fetched_report
-
-        return None
 
     def get_reports(self, park_id):
         """
