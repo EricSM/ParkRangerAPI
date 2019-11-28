@@ -63,18 +63,18 @@ class WeatherHandler:
             Values (?,?,?,?,?,?,?,?,?,?)
         """)
         try:
-            return self.get_helper(insert_sql_string, new_rule)
+            return self.add_helper(insert_sql_string, new_rule)
         except Exception as e:
             print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
-            return self.get_helper(insert_sql_string, new_rule)
+            return self.add_helper(insert_sql_string, new_rule)
         
         return None
 
-    def get_helper(self, query, rule):
+    def add_helper(self, query, rule):
         self.cursor.execute(query, 
                             rule.park_id, 
                             rule.name, 
@@ -265,6 +265,8 @@ class WeatherHandler:
             fetched_rule.rule_id = result.rule_id   
             return fetched_rule
         return None
+
+    
 
     def get_rule_json(self, park_id, ruke_id):
         return jsonpickle.encode(self.get_rule(park_id, ruke_id))
