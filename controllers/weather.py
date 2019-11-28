@@ -15,7 +15,7 @@ with open("controllers/app_id.txt", 'r') as f:
 
 class WeatherHandler:
     """
-    Handles updating ruls
+    Handles updating rules
 
     Attributes:
         rules: A list of rules associated with this area
@@ -33,6 +33,7 @@ class WeatherHandler:
         self.units = units
         self.rules = []
 
+        global driver
         # driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd={ParkWatch123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
         driver = 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:parkwatch-db-server.database.windows.net,1433;Database=parkwatch-database;Uid=ranger;Pwd=ParkWatch123!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=0;'
         pyodbc.pooling = False
@@ -61,24 +62,35 @@ class WeatherHandler:
                 map_path, rule_desc, activated) 
             Values (?,?,?,?,?,?,?,?,?,?)
         """)
-        self.cursor.execute(insert_sql_string, 
-                            new_rule.park_id, 
-                            new_rule.name, 
-                            new_rule.condition_type, 
-                            str(new_rule.center_lat), 
-                            str(new_rule.center_long), 
-                            new_rule.condition_interval_value, 
-                            new_rule.condition_interval_symbol,
-                            jsonpickle.encode(new_rule.path),
-                            new_rule.description,
-                            new_rule.active) # Insert it into database
+        try:
+            return self.get_helper(insert_sql_string, new_rule)
+        except Exception as e:
+            print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.get_helper(insert_sql_string, new_rule)
+
+    def get_helper(self, query, rule):
+        self.cursor.execute(query, 
+                            rule.park_id, 
+                            rule.name, 
+                            rule.condition_type, 
+                            str(rule.center_lat), 
+                            str(rule.center_long), 
+                            rule.condition_interval_value, 
+                            rule.condition_interval_symbol,
+                            jsonpickle.encode(rule.path),
+                            rule.description,
+                            rule.active) # Insert it into database
 
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
-        new_rule.rule_id = new_id
+        rule.rule_id = new_id
 
-        return jsonpickle.encode(new_rule)
+        return jsonpickle.encode(rule)
 
     def delete_rule(self, park_id, rule_id):
         return
