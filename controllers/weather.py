@@ -250,7 +250,21 @@ class WeatherHandler:
             rule_id = ?
         """)
 
-        self.cursor.execute(selection_string, park_id, rule_id)
+        try:
+            return self.get_helper(selection_string, park_id, rule_id)
+        except Exception as e:
+            print('Encountered database error while retrieving a weather rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+
+            return self.get_helper(selection_string, park_id, rule_id)
+        finally:
+            return None
+
+    def get_helper(self, query, park_id, rule_id):
+        self.cursor.execute(query, park_id, rule_id)
         result = self.cursor.fetchone()
 
         if result:
@@ -264,9 +278,6 @@ class WeatherHandler:
                                     )
             fetched_rule.rule_id = result.rule_id   
             return fetched_rule
-        return None
-
-    
 
     def get_rule_json(self, park_id, ruke_id):
         return jsonpickle.encode(self.get_rule(park_id, ruke_id))
