@@ -149,7 +149,21 @@ class WeatherHandler:
             park_id = ?
         """)
 
-        self.cursor.execute(selection_string, park_id)
+        try:
+            return self.get_list_helper(selection_string, park_id)
+        except Exception as e:
+            print('Encountered database error while retrieving a list of weather rules.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+
+            return self.get_list_helper(selection_string, park_id)
+        finally:
+            return None
+
+    def get_list_helper(self, query, park_id):
+        self.cursor.execute(query, park_id)
         results = self.cursor.fetchall()
         rules = []
 
@@ -166,7 +180,6 @@ class WeatherHandler:
                 fetched_rule.rule_id = result.rule_id   
                 rules.append(fetched_rule)
             return rules
-        return None
 
     def get_active_rules(self, park_id, active):
         selection_string = textwrap.dedent("""
