@@ -71,6 +71,8 @@ class WeatherHandler:
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
             return self.get_helper(insert_sql_string, new_rule)
+        
+        return None
 
     def get_helper(self, query, rule):
         self.cursor.execute(query, 
