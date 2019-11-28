@@ -203,7 +203,21 @@ class WeatherHandler:
             activated = ?
         """)
 
-        self.cursor.execute(selection_string, park_id, active)
+        try:
+            return self.get_activated_helper(selection_string, park_id, active)
+        except Exception as e:
+            print('Encountered database error while retrieving a list of active rules.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+
+            return self.get_activated_helper(selection_string, park_id, active)
+
+        return None
+
+    def get_activated_helper(self, query, park_id, active):
+        self.cursor.execute(query, park_id, active)
         results = self.cursor.fetchall()
         rules = []
 
@@ -220,7 +234,6 @@ class WeatherHandler:
                 fetched_rule.rule_id = result.rule_id   
                 rules.append(fetched_rule)
             return rules
-        return None
 
     def get_rules_json(self, park_id):
         return jsonpickle.encode(self.get_rules(park_id))
