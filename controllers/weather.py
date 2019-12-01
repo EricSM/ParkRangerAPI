@@ -54,6 +54,7 @@ class WeatherHandler:
                 Ex: leq = less than or equal to
             description: The description returned when this rule is broken
         """
+        print(path)
         new_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
         insert_sql_string = textwrap.dedent("""
             Insert Into WeatherRules(park_id, area_name, condition, 

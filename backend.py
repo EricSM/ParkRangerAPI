@@ -172,6 +172,8 @@ def create_rule(request):
     
     park_id = int(request.args.get('park'))
 
+    print(request)
+
     # Example post json
 
     #"{"condition_interval_symbol\":\">\",\"condition_interval_value\":0,
@@ -184,7 +186,7 @@ def create_rule(request):
                      request.json['description'],
                      request.json['name'],
                      park_id,
-                     request.json['path']
+                     json.dumps(request.json['path'])
                      )
 
     return report_json
