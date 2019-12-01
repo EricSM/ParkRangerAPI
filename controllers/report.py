@@ -88,9 +88,6 @@ class ReportHandler:
         new_id = int(self.cursor.fetchone()[0])
         new_report.set_id(new_id)
 
-        self.temp_fake_db.append(new_report)
-        self.report_dictionary[new_id] = new_report
-
         return jsonpickle.encode(new_report)
 
     def get_report(self, park_id, id):
@@ -143,7 +140,7 @@ class ReportHandler:
         Returns:
             Array of Report objects
         """
-        selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {}".format(park_id)
+        selection_string = "Select id, loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {}".format(park_id)
         
         try:
             return self.get_list_helper(selection_string)
@@ -171,6 +168,7 @@ class ReportHandler:
                                         result.severity,
                                         result.closure,
                                         result.approved_status)
+                fetched_report.set_id(result.id)
                 reports.append(fetched_report)
             return reports
 

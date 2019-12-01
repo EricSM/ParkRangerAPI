@@ -63,17 +63,17 @@ class WeatherHandler:
                 map_path, rule_desc, activated) 
             Values (?,?,?,?,?,?,?,?,?,?)
         """)
-        try:
-            return self.add_helper(insert_sql_string, new_rule)
-        except Exception as e:
-            print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
-            cnxn = pyodbc.connect(driver)
+        # try:
+        return self.add_helper(insert_sql_string, new_rule)
+        # except Exception as e:
+        #     print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
+        #     cnxn = pyodbc.connect(driver)
 
-            self.cnxn = cnxn
-            self.cursor = cnxn.cursor()
-            return self.add_helper(insert_sql_string, new_rule)
+        #     self.cnxn = cnxn
+        #     self.cursor = cnxn.cursor()
+        #     return self.add_helper(insert_sql_string, new_rule)
         
-        return None
+        # return None
 
     def add_helper(self, query, rule):
         self.cursor.execute(query, 
@@ -150,18 +150,18 @@ class WeatherHandler:
             park_id = ?
         """)
 
-        try:
-            return self.get_list_helper(selection_string, park_id)
-        except Exception as e:
-            print('Encountered database error while retrieving a list of weather rules.\nRetrying.\n{}'.format(str(e)))
-            cnxn = pyodbc.connect(driver)
+        # try:
+        return self.get_list_helper(selection_string, park_id)
+        # except Exception as e:
+        #     print('Encountered database error while retrieving a list of weather rules.\nRetrying.\n{}'.format(str(e)))
+        #     cnxn = pyodbc.connect(driver)
 
-            self.cnxn = cnxn
-            self.cursor = cnxn.cursor()
+        #     self.cnxn = cnxn
+        #     self.cursor = cnxn.cursor()
 
-            return self.get_list_helper(selection_string, park_id)
-        finally:
-            return None
+        #     return self.get_list_helper(selection_string, park_id)
+        # finally:
+        #     return None
 
     def get_list_helper(self, query, park_id):
         self.cursor.execute(query, park_id)
@@ -204,18 +204,18 @@ class WeatherHandler:
             activated = ?
         """)
 
-        try:
-            return self.get_activated_helper(selection_string, park_id, active)
-        except Exception as e:
-            print('Encountered database error while retrieving a list of active rules.\nRetrying.\n{}'.format(str(e)))
-            cnxn = pyodbc.connect(driver)
+        # try:
+        return self.get_activated_helper(selection_string, park_id, active)
+        # except Exception as e:
+        #     print('Encountered database error while retrieving a list of active rules.\nRetrying.\n{}'.format(str(e)))
+        #     cnxn = pyodbc.connect(driver)
 
-            self.cnxn = cnxn
-            self.cursor = cnxn.cursor()
+        #     self.cnxn = cnxn
+        #     self.cursor = cnxn.cursor()
 
-            return self.get_activated_helper(selection_string, park_id, active)
+        #     return self.get_activated_helper(selection_string, park_id, active)
 
-        return None
+        # return None
 
     def get_activated_helper(self, query, park_id, active):
         self.cursor.execute(query, park_id, active)
@@ -264,18 +264,18 @@ class WeatherHandler:
             rule_id = ?
         """)
 
-        try:
-            return self.get_helper(selection_string, park_id, rule_id)
-        except Exception as e:
-            print('Encountered database error while retrieving a weather rule.\nRetrying.\n{}'.format(str(e)))
-            cnxn = pyodbc.connect(driver)
+        # try:
+        return self.get_helper(selection_string, park_id, rule_id)
+        # except Exception as e:
+        #     print('Encountered database error while retrieving a weather rule.\nRetrying.\n{}'.format(str(e)))
+        #     cnxn = pyodbc.connect(driver)
 
-            self.cnxn = cnxn
-            self.cursor = cnxn.cursor()
+        #     self.cnxn = cnxn
+        #     self.cursor = cnxn.cursor()
 
-            return self.get_helper(selection_string, park_id, rule_id)
-        finally:
-            return None
+        #     return self.get_helper(selection_string, park_id, rule_id)
+        # finally:
+        #     return None
 
     def get_helper(self, query, park_id, rule_id):
         self.cursor.execute(query, park_id, rule_id)
@@ -295,6 +295,19 @@ class WeatherHandler:
 
     def get_rule_json(self, park_id, ruke_id):
         return jsonpickle.encode(self.get_rule(park_id, ruke_id))
+
+    def refresh_rules(self, park_id):
+        print("Refreshing")
+        park_rules = self.get_rules(park_id)
+        print(park_rules)
+        for r in park_rules:
+            weather_json = r.get_weather()
+            print(weather_json)
+            if(r.check_rule(weather_json)):
+                r.active = 1
+            else:
+                r.active = 0
+            print(r.active)
 
 class Rule:
     """
@@ -340,6 +353,17 @@ class Rule:
 
         return avg_lat, avg_long
 
+    def get_weather(self):
+        """
+        Gets the current weather using the OpenWeather API and the weather station associated with the area
+
+        Returns:
+            The JSON returned by OpenWeather
+        """
+        request_url = open_weather_request_url.format(self.center_lat, self.center_long, "imperial", app_id)
+        request = requests.get(request_url)
+        return request.json()
+
     def check_rule(self, weather_json):
         """
         Checks the rule against weather data and returns true if the rule has been broken
@@ -352,19 +376,16 @@ class Rule:
             False: otherwise
         """
         if (self.condition_interval_symbol == 'leq'): # Less than or equal to
-            self.active = True
             return weather_json['main'][self.condition_type] <= self.condition_interval_value
         elif (self.condition_interval_symbol == 'le'): # Less than
-            self.active = True
             return weather_json['main'][self.condition_type] < self.condition_interval_value
         elif (self.condition_interval_symbol == 'geq'): # Greater than or equal to
-            self.active = True
             return weather_json['main'][self.condition_type] >= self.condition_interval_value
         elif (self.condition_interval_symbol == 'ge'): # Greater than
-            self.active = True
             return weather_json['main'][self.condition_type] > self.condition_interval_value
         elif (self.condition_interval_symbol == 'eq'): # Equal to
-            self.active = True
             return weather_json['main'][self.condition_type] == self.condition_interval_value
         
         return False # Base case, no rules were broken
+
+    

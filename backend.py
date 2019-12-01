@@ -15,6 +15,7 @@
 # https://docs.microsoft.com/en-us/azure/app-service/containers/how-to-configure-python
 
 import jsonpickle
+import logging
 
 from flask import Flask, jsonify, render_template, make_response, request, render_template, abort, json
 from flask_cors import CORS
@@ -22,6 +23,7 @@ from controllers.report import Report, ReportHandler
 from controllers.weather import Rule, WeatherHandler
 
 app = Flask(__name__, template_folder="templates")
+logging.basicConfig(level=logging.DEBUG)
 cors = CORS(app)
 
 report_handler = ReportHandler()
@@ -129,22 +131,33 @@ def get_rules_base():
     park_id = request.args.get('park')
     rule_id = request.args.get('id')
     active = request.args.get('active')
+    refresh = request.args.get('refresh')
 
     if request.method == 'GET':
-        if park_id and not rule_id and not active: # If only the park was provided then get list of all reports
+        if park_id and not rule_id and not active and not refresh: # If only the park was provided then get list of all reports
             return get_rules(int(park_id))
         
-        if park_id and not rule_id and active:
+        elif park_id and not rule_id and active:
             return get_active_rules(int(park_id), active)
 
         elif park_id and rule_id: # If park and report id were provided then return specified report
             return get_rule(int(park_id), int(rule_id))
+        
+        elif park_id and refresh: # Refresh all rules for the park
+            return refresh_rules(int(park_id), int(active))
 
     elif request.method == 'POST':
         return create_rule(request)
     else:
         abort(404)
 
+def refresh_rules(park_id, active):
+    weather_handler.refresh_rules(park_id)
+
+    if active:
+        return get_active_rules(park_id, active)
+    else:
+        return get_rules(park_id)
 
 def get_rule(park_id, rule_id):
     fetched_rule = weather_handler.get_rule_json(park_id, rule_id)

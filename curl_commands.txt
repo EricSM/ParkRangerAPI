@@ -19,3 +19,5 @@ curl -X "DELETE" "https://parkwatch-backend.azurewebsites.net/pw/api/reports?par
 curl -i -H "Content-Type: application/json" -X POST -d  "{"condition_interval_symbol\":\">\",\"condition_interval_value\":0, \"condition_type\":\"rain\",\"description\":\"Test description\", \"name\":\"Test Name\", \"path\":[{\"lat\":36.86149,\"lng\":30.63743},{\"lat\":36.86341,\"lng\":30.72463}]}" https://parkwatch-backend.azurewebsites.net/pw/api/weather?park=0
 
 curl -i -H "Content-Type: application/json" -X POST -d  '{"condition_interval_symbol":">","condition_interval_value":0, "condition_type":"rain","description":"Test description", "name":"Test Name", "path":[{"lat":36.86149,"lng":30.63743},{"lat":36.86341,"lng":30.72463}]}' http://127.0.0.1:5000/pw/api/weather?park=0
+
+curl -i "http://127.0.0.1:5000/pw/api/weather?park=0&refresh=1"
