@@ -144,7 +144,10 @@ def get_rules_base():
             return get_rule(int(park_id), int(rule_id))
         
         elif park_id and refresh: # Refresh all rules for the park
-            return refresh_rules(int(park_id), int(active))
+            if active:
+                return refresh_rules(int(park_id), int(active))
+            else:
+                return refresh_rules(int(park_id), None)
 
     elif request.method == 'POST':
         return create_rule(request)

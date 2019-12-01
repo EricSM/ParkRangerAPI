@@ -5,7 +5,7 @@ import textwrap
 import requests
 
 app_id = "" # Our unique open weather id
-open_weather_request_url = "https://api.openweathermap.org/data/2.5/weather?lat={}&long={}&units={}&appid={}" # The request URL for open weather API
+open_weather_request_url = "https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units={}&appid={}" # The request URL for open weather API
 
 with open("controllers/app_id.txt", 'r') as f:
     app_id = f.readline().strip()
@@ -63,17 +63,44 @@ class WeatherHandler:
                 map_path, rule_desc, activated) 
             Values (?,?,?,?,?,?,?,?,?,?)
         """)
-        # try:
-        return self.add_helper(insert_sql_string, new_rule)
-        # except Exception as e:
-        #     print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
-        #     cnxn = pyodbc.connect(driver)
+        try:
+            return self.add_helper(insert_sql_string, new_rule)
+        except Exception as e:
+            print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
 
-        #     self.cnxn = cnxn
-        #     self.cursor = cnxn.cursor()
-        #     return self.add_helper(insert_sql_string, new_rule)
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.add_helper(insert_sql_string, new_rule)
         
-        # return None
+        return None
+
+    def update_rule_active(self, rule, active):
+        update_string = textwrap.dedent("""
+        Update WeatherRules
+        Set activated = ?
+        Where rule_id = ?
+        """)
+
+        try:
+            return self.update_rule_active_helper(update_string, rule, active)
+        except Exception as e:
+            print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.update_rule_active_helper(update_string, rule, active)
+        
+        return None
+
+    def update_rule_active_helper(self, query, rule, active):
+        print(rule.rule_id)
+        print(active)
+        self.cursor.execute(query,
+                            active,
+                            rule.rule_id)
+        self.cnxn.commit()
 
     def add_helper(self, query, rule):
         self.cursor.execute(query, 
@@ -150,19 +177,18 @@ class WeatherHandler:
             park_id = ?
         """)
 
-        # try:
-        return self.get_list_helper(selection_string, park_id)
-        # except Exception as e:
-        #     print('Encountered database error while retrieving a list of weather rules.\nRetrying.\n{}'.format(str(e)))
-        #     cnxn = pyodbc.connect(driver)
+        try:
+            return self.get_list_helper(selection_string, park_id)
+        except Exception as e:
+            print('Encountered database error while retrieving a list of weather rules.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
 
-        #     self.cnxn = cnxn
-        #     self.cursor = cnxn.cursor()
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
 
-        #     return self.get_list_helper(selection_string, park_id)
-        # finally:
-        #     return None
-
+            return self.get_list_helper(selection_string, park_id)
+        return None
+        
     def get_list_helper(self, query, park_id):
         self.cursor.execute(query, park_id)
         results = self.cursor.fetchall()
@@ -179,8 +205,10 @@ class WeatherHandler:
                                     result.map_path
                                     )
                 fetched_rule.rule_id = result.rule_id   
+                fetched_rule.active = int(result.activated)
                 rules.append(fetched_rule)
             return rules
+        return None
 
     def get_active_rules(self, park_id, active):
         selection_string = textwrap.dedent("""
@@ -204,18 +232,18 @@ class WeatherHandler:
             activated = ?
         """)
 
-        # try:
-        return self.get_activated_helper(selection_string, park_id, active)
-        # except Exception as e:
-        #     print('Encountered database error while retrieving a list of active rules.\nRetrying.\n{}'.format(str(e)))
-        #     cnxn = pyodbc.connect(driver)
+        try:
+            return self.get_activated_helper(selection_string, park_id, active)
+        except Exception as e:
+            print('Encountered database error while retrieving a list of active rules.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
 
-        #     self.cnxn = cnxn
-        #     self.cursor = cnxn.cursor()
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
 
-        #     return self.get_activated_helper(selection_string, park_id, active)
+            return self.get_activated_helper(selection_string, park_id, active)
 
-        # return None
+        return None
 
     def get_activated_helper(self, query, park_id, active):
         self.cursor.execute(query, park_id, active)
@@ -233,6 +261,7 @@ class WeatherHandler:
                                     result.map_path
                                     )
                 fetched_rule.rule_id = result.rule_id   
+                fetched_rule.active = int(result.activated)
                 rules.append(fetched_rule)
             return rules
 
@@ -264,16 +293,16 @@ class WeatherHandler:
             rule_id = ?
         """)
 
-        # try:
-        return self.get_helper(selection_string, park_id, rule_id)
-        # except Exception as e:
-        #     print('Encountered database error while retrieving a weather rule.\nRetrying.\n{}'.format(str(e)))
-        #     cnxn = pyodbc.connect(driver)
+        try:
+            return self.get_helper(selection_string, park_id, rule_id)
+        except Exception as e:
+            print('Encountered database error while retrieving a weather rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
 
-        #     self.cnxn = cnxn
-        #     self.cursor = cnxn.cursor()
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
 
-        #     return self.get_helper(selection_string, park_id, rule_id)
+            return self.get_helper(selection_string, park_id, rule_id)
         # finally:
         #     return None
 
@@ -291,23 +320,24 @@ class WeatherHandler:
                                     result.map_path
                                     )
             fetched_rule.rule_id = result.rule_id   
+            fetched_rule.active = int(result.activated)
             return fetched_rule
 
     def get_rule_json(self, park_id, ruke_id):
         return jsonpickle.encode(self.get_rule(park_id, ruke_id))
 
     def refresh_rules(self, park_id):
-        print("Refreshing")
         park_rules = self.get_rules(park_id)
-        print(park_rules)
-        for r in park_rules:
-            weather_json = r.get_weather()
-            print(weather_json)
-            if(r.check_rule(weather_json)):
-                r.active = 1
-            else:
-                r.active = 0
-            print(r.active)
+        if park_rules:
+            for r in park_rules:
+                weather_json = r.get_weather()
+                print(weather_json)
+                if(r.check_rule(weather_json)):
+                    r.active = 1
+                else:
+                    r.active = 0
+                print(r.active)
+                self.update_rule_active(r, r.active)
 
 class Rule:
     """
@@ -360,7 +390,7 @@ class Rule:
         Returns:
             The JSON returned by OpenWeather
         """
-        request_url = open_weather_request_url.format(self.center_lat, self.center_long, "imperial", app_id)
+        request_url = open_weather_request_url.format(int(self.center_lat), int(self.center_long), "imperial", app_id)
         request = requests.get(request_url)
         return request.json()
 
