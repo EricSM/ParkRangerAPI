@@ -62,8 +62,10 @@ def get_report_base():
     elif request.method == 'DELETE':
         if park_id and report_id:
             return delete_report(park_id, report_id)
+        else:
+            abort(400, "Missing park_id and report_id")
     else:
-        abort(404)
+        abort(400)
 
     
 def get_reports(park_id):
@@ -151,8 +153,14 @@ def get_rules_base():
 
     elif request.method == 'POST':
         return create_rule(request)
+
+    elif request.method == 'DELETE':
+        if park_id and rule_id:
+            return delete_rule(park_id, rule_id)
+        else:
+            abort(400, "Missing park_id and rule_id")
     else:
-        abort(404)
+        abort(400, "Error in rule request")
 
 def refresh_rules(park_id, active):
     weather_handler.refresh_rules(park_id)
@@ -166,7 +174,7 @@ def get_rule(park_id, rule_id):
     fetched_rule = weather_handler.get_rule_json(park_id, rule_id)
 
     if not fetched_rule:
-        abort(404)
+        abort(400, f"No rule with park_id={park_id} and rule_id={rule_id} was found.")
 
     return fetched_rule
 
@@ -184,7 +192,7 @@ def get_rules(park_id):
 
 def create_rule(request):
     if not request.json or not 'name' in request.json:
-        abort(400)
+        abort(400, "Error in rule request")
     
     park_id = int(request.args.get('park'))
 
@@ -219,6 +227,10 @@ def get_active_rules(park_id, active):
     report_json = weather_handler.get_active_rules_json(park_id, active)
     return report_json
 
+def delete_rule(park_id, rule_id):
+    result = weather_handler.delete_rule(park_id, rule_id)
+    return app.response_class(json.dumps(result), content_type='application/json')
+
 def delete_report(park_id, report_id):
     result = report_handler.delete_report(park_id, report_id)
     return app.response_class(json.dumps(result), content_type='application/json')
@@ -228,8 +240,12 @@ def home():
     return render_template('home.html', title='Home')
 
 @app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+def not_found(e):
+    return jsonify(error=str(e)), 404
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify(error=str(e)), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

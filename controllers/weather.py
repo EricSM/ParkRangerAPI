@@ -119,8 +119,35 @@ class WeatherHandler:
 
         return jsonpickle.encode(rule)
 
-    def delete_rule(self, park_id, rule_id):
-        return
+    def delete_rule(self, park_id, id):
+        """
+        Deletes the rule associated with the given ID.
+
+        Args:
+            id: The ID of the report
+        Returns:
+            True or False
+        """
+
+        delete_string = "Delete from WeatherRules where park_id = ? AND rule_id = ?"
+
+        try:
+            return self.delete_helper(delete_string, park_id, id)
+        except Exception as e:
+            print('Encountered database error while deleting a rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.delete_helper(delete_string, park_id, id)
+
+        return False
+
+    def delete_helper(self, query, park_id, id):
+        self.cursor.execute(query, park_id, id)
+        self.cursor.commit()
+        print('Weather rule {0} deleted from park {1}'.format(id, park_id))
+        return True
 
     def get_weather(self, rule):
         """
