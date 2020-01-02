@@ -172,7 +172,7 @@ class ReportHandler:
                 reports.append(fetched_report)
             return reports
 
-    def update_report(self, park_id, id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
+    def update_report(self, park_id, rule_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Updates the report associated with the given ID with the given arguments, then returns the report.
 
@@ -201,11 +201,11 @@ class ReportHandler:
                 severity = ?, 
                 closure = ?, 
                 approved_status = ?
-            where ID = ?"
+            where ID = ?
         """)
         
         try:
-            return self.update_helper(update_string, id, updated_report)
+            return self.update_helper(update_string, rule_id, updated_report)
         except Exception as e:
             print('Encountered database error while updating a report.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
@@ -213,27 +213,23 @@ class ReportHandler:
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
 
-            return self.update_helper(update_string, id, updated_report)
+            return self.update_helper(update_string, rule_id, updated_report)
         return None
 
 
-    def update_helper(self, query, id, report):
+    def update_helper(self, query, report_id, report):
         self.cursor.execute(query, 
                             report.loc_name, 
                             str(report.loc_lat), 
                             str(report.loc_long), 
-                            report.description, 
+                            str(report.report_description), 
                             str(report.severity), 
                             str(report.closure), 
                             report.approved_status,
-                            id)
+                            report_id)
         self.cursor.commit()
-        
-        self.temp_fake_db.remove(report)
-        self.temp_fake_db.append(report)
-        self.report_dictionary[id] = report
 
-        print('report {} updated'.format(id))
+        print('report {} updated'.format(id), flush=True)
         return jsonpickle.encode(report)
 
     def delete_report(self, park_id, id):

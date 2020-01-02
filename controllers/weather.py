@@ -99,6 +99,54 @@ class WeatherHandler:
                             rule.rule_id)
         self.cnxn.commit()
 
+    def update_rule(self, rule_id, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):   
+        updated_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
+        updated_rule.rule_id = rule_id
+
+        update_string = textwrap.dedent("""
+            UPDATE WeatherRules
+            Set park_id = ?, 
+            area_name = ?,
+            condition = ?, 
+            area_lat = ?,
+            area_long = ?,
+            interval_value = ?, 
+            interval_symbol = ?,
+            map_path = ?, 
+            rule_desc = ?, 
+            activated = ?
+            WHERE rule_id = ?
+        """)
+        try:
+            return self.update_helper(update_string, rule_id, updated_rule)
+        except Exception as e:
+            print('Encountered database error while updating a rule.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+
+            return self.update_helper(update_string, id, updated_rule)
+        return None
+
+
+    def update_helper(self, query, rule_id, rule):
+        self.cursor.execute(query, 
+                            rule.park_id, 
+                            rule.name, 
+                            rule.condition_type, 
+                            str(rule.center_lat), 
+                            str(rule.center_long), 
+                            rule.condition_interval_value, 
+                            rule.condition_interval_symbol,
+                            jsonpickle.encode(rule.path),
+                            rule.description,
+                            rule.active,
+                            rule_id)
+        # jsonpickle.encode(rule.path)
+        self.cnxn.commit()
+        return jsonpickle.encode(rule)
+
     def add_helper(self, query, rule):
         self.cursor.execute(query, 
                             rule.park_id, 

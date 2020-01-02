@@ -57,7 +57,10 @@ def get_report_base():
             return get_report(int(park_id), int(report_id))
 
     elif request.method == 'POST':
-        return create_report(request)
+        if park_id and report_id:
+            return update_report(park_id, report_id, request)
+        elif park_id:
+            return create_report(request)
 
     elif request.method == 'DELETE':
         if park_id and report_id:
@@ -118,6 +121,31 @@ def create_report(request):
 
     return report_json
 
+def update_report(park_id, report_id, request):
+    """
+    Calls report handler to create a new report object, puts it into the db, and returns it
+
+    Args:
+        request: The request object
+    Returns:
+        The newly created json report object
+    """
+    if not request.json or not 'loc_name' in request.json:
+        abort(400)
+    
+    report_json = report_handler.update_report(
+                     park_id,
+                     report_id,
+                     request.json['loc_name'],
+                     request.json['loc_lat'],
+                     request.json['loc_long'],
+                     request.json['description'],
+                     request.json['severity'],
+                     request.json['closure'],
+                     0)
+    print(report_json, flush=True)
+    return report_json
+
 @app.route('/pw/api/weather', methods=['GET', 'POST', 'DELETE'])
 def get_rules_base():
     """
@@ -152,7 +180,10 @@ def get_rules_base():
                 return refresh_rules(int(park_id), None)
 
     elif request.method == 'POST':
-        return create_rule(request)
+        if park_id and rule_id:
+            return update_rule(park_id, rule_id, request)
+        elif park_id:
+            return create_rule(request)
 
     elif request.method == 'DELETE':
         if park_id and rule_id:
@@ -205,6 +236,29 @@ def create_rule(request):
     # \"name\":\"Test Name\", \"path\":[{\"lat\":36.86149,\"lng\":30.63743},{\"lat\":36.86341,\"lng\":30.72463}]}"
 
     report_json = weather_handler.add_rule(request.json['condition_type'],
+                     request.json['condition_interval_value'],
+                     request.json['condition_interval_symbol'],
+                     request.json['description'],
+                     request.json['name'],
+                     park_id,
+                     json.dumps(request.json['path'])
+                     )
+
+    return report_json
+
+def update_rule(park_id, rule_id, request):
+    if not request.json or not 'name' in request.json:
+        abort(400, "Error in rule request")
+   
+    # Example post json
+
+    #"{"condition_interval_symbol\":\">\",\"condition_interval_value\":0,
+    # \"condition_type\":\"rain\",\"description\":\"Test description\",
+    # \"name\":\"Test Name\", \"path\":[{\"lat\":36.86149,\"lng\":30.63743},{\"lat\":36.86341,\"lng\":30.72463}]}"
+
+    report_json = weather_handler.update_rule(
+                     rule_id,
+                     request.json['condition_type'],
                      request.json['condition_interval_value'],
                      request.json['condition_interval_symbol'],
                      request.json['description'],
