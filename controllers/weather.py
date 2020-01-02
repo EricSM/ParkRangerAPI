@@ -54,7 +54,6 @@ class WeatherHandler:
                 Ex: leq = less than or equal to
             description: The description returned when this rule is broken
         """
-        print(path)
         new_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
         insert_sql_string = textwrap.dedent("""
             Insert Into WeatherRules(park_id, area_name, condition, 
@@ -66,7 +65,7 @@ class WeatherHandler:
         try:
             return self.add_helper(insert_sql_string, new_rule)
         except Exception as e:
-            print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)))
+            print('Encountered database error while adding a new rule.\nRetrying.\n{}'.format(str(e)), flush=True)
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
@@ -95,8 +94,6 @@ class WeatherHandler:
         return None
 
     def update_rule_active_helper(self, query, rule, active):
-        print(rule.rule_id)
-        print(active)
         self.cursor.execute(query,
                             active,
                             rule.rule_id)
@@ -331,12 +328,10 @@ class WeatherHandler:
         if park_rules:
             for r in park_rules:
                 weather_json = r.get_weather()
-                print(weather_json)
                 if(r.check_rule(weather_json)):
                     r.active = 1
                 else:
                     r.active = 0
-                print(r.active)
                 self.update_rule_active(r, r.active)
 
 class Rule:
@@ -365,7 +360,7 @@ class Rule:
         self.description = description #str
         self.name = name #str
         self.park_id = int(park_id)
-        self.path = jsonpickle.decode(path)
+        self.path = jsonpickle.decode(path) # path: [{lat:0, lon:0}, {}]
         self.center_lat, self.center_long = self.get_center_cords(self.path)
         self.active = 0
         self.rule_id = None
@@ -378,8 +373,8 @@ class Rule:
             avg_lat += float(p['lat'])
             avg_long += float(p['lng'])
         
-        avg_lat /= len(path)
-        avg_long /= len(path)
+        avg_lat /= float(len(path))
+        avg_long /= float(len(path))
 
         return avg_lat, avg_long
 
@@ -390,7 +385,7 @@ class Rule:
         Returns:
             The JSON returned by OpenWeather
         """
-        request_url = open_weather_request_url.format(int(self.center_lat), int(self.center_long), "imperial", app_id)
+        request_url = open_weather_request_url.format(float(self.center_lat), float(self.center_long), "imperial", app_id)
         request = requests.get(request_url)
         return request.json()
 
@@ -405,16 +400,63 @@ class Rule:
             True: if the rule is broken
             False: otherwise
         """
-        if (self.condition_interval_symbol == 'leq'): # Less than or equal to
-            return weather_json['main'][self.condition_type] <= self.condition_interval_value
-        elif (self.condition_interval_symbol == 'le'): # Less than
-            return weather_json['main'][self.condition_type] < self.condition_interval_value
-        elif (self.condition_interval_symbol == 'geq'): # Greater than or equal to
-            return weather_json['main'][self.condition_type] >= self.condition_interval_value
-        elif (self.condition_interval_symbol == 'ge'): # Greater than
-            return weather_json['main'][self.condition_type] > self.condition_interval_value
-        elif (self.condition_interval_symbol == 'eq'): # Equal to
-            return weather_json['main'][self.condition_type] == self.condition_interval_value
+        print(weather_json, flush=True)
+        if(self.condition_type == 'rain'): # Rain is measured in mm
+            if (self.condition_type in weather_json.keys()): # Make sure the JSON contains rain (it will if rain is in the forecast)
+                rain_type = '1h' # Default rain type to 1 hour but use 3 if possible
+                if ('3h' in weather_json['rain'].keys()):
+                    rain_type = '3h'
+                if (self.condition_interval_symbol == 'leq'): # Less than or equal to
+                    return weather_json['rain'][rain_type] <= self.condition_interval_value
+                elif (self.condition_interval_symbol == 'le'): # Less than
+                    return weather_json['rain'][rain_type] < self.condition_interval_value
+                elif (self.condition_interval_symbol == 'geq'): # Greater than or equal to
+                    return weather_json['rain'][rain_type] >= self.condition_interval_value
+                elif (self.condition_interval_symbol == 'ge'): # Greater than
+                    return weather_json['rain'][rain_type] > self.condition_interval_value
+                elif (self.condition_interval_symbol == 'eq'): # Equal to
+                    return weather_json['rain'][rain_type] == self.condition_interval_value
+
+        elif(self.condition_type == 'snow'): # Snow is measured in mm
+            if (self.condition_type in weather_json.keys()): # Make sure the JSON contains snow (it will if snow is in the forecast)
+                snow_type = '1h' # Default snow type to 1 hour but use 3 if possible
+                if ('3h' in weather_json['rain'].keys()):
+                    rain_tsnow_typeype = '3h'
+                if (self.condition_interval_symbol == 'leq'): # Less than or equal to
+                    return weather_json['snow'][snow_type] <= self.condition_interval_value
+                elif (self.condition_interval_symbol == 'le'): # Less than
+                    return weather_json['snow'][snow_type] < self.condition_interval_value
+                elif (self.condition_interval_symbol == 'geq'): # Greater than or equal to
+                    return weather_json['snow'][snow_type] >= self.condition_interval_value
+                elif (self.condition_interval_symbol == 'ge'): # Greater than
+                    return weather_json['snow'][snow_type] > self.condition_interval_value
+                elif (self.condition_interval_symbol == 'eq'): # Equal to
+                    return weather_json['snow'][snow_type] == self.condition_interval_value
+        
+        elif(self.condition_type == 'wind'):
+            if (self.condition_type in weather_json.keys()): # Make sure the JSON contains wind (it will if wind is in the forecast)
+                if (self.condition_interval_symbol == 'leq'): # Less than or equal to
+                    return weather_json['wind']['speed'] <= self.condition_interval_value
+                elif (self.condition_interval_symbol == 'le'): # Less than
+                    return weather_json['wind']['speed'] < self.condition_interval_value
+                elif (self.condition_interval_symbol == 'geq'): # Greater than or equal to
+                    return weather_json['wind']['speed'] >= self.condition_interval_value
+                elif (self.condition_interval_symbol == 'ge'): # Greater than
+                    return weather_json['wind']['speed'] > self.condition_interval_value
+                elif (self.condition_interval_symbol == 'eq'): # Equal to
+                    return weather_json['wind']['speed'] == self.condition_interval_value
+
+        elif(self.condition_type == 'temp'):
+            if (self.condition_interval_symbol == 'leq'): # Less than or equal to
+                return weather_json['main']['temp'] <= self.condition_interval_value
+            elif (self.condition_interval_symbol == 'le'): # Less than
+                return weather_json['main']['temp'] < self.condition_interval_value
+            elif (self.condition_interval_symbol == 'geq'): # Greater than or equal to
+                return weather_json['main']['temp'] >= self.condition_interval_value
+            elif (self.condition_interval_symbol == 'ge'): # Greater than
+                return weather_json['main']['temp'] > self.condition_interval_value
+            elif (self.condition_interval_symbol == 'eq'): # Equal to
+                return weather_json['main']['temp'] == self.condition_interval_value
         
         return False # Base case, no rules were broken
 
