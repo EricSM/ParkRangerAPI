@@ -496,7 +496,7 @@ class Rule:
             if (self.condition_type in weather_json.keys()): # Make sure the JSON contains snow (it will if snow is in the forecast)
                 snow_type = '1h' # Default snow type to 1 hour but use 3 if possible
                 if ('3h' in weather_json['rain'].keys()):
-                    rain_tsnow_typeype = '3h'
+                    rain_type = '3h'
                 if (self.condition_interval_symbol == 'leq'): # Less than or equal to
                     return weather_json['snow'][snow_type] <= self.condition_interval_value
                 elif (self.condition_interval_symbol == 'le'): # Less than
