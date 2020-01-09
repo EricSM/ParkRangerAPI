@@ -21,6 +21,7 @@ from flask import Flask, jsonify, render_template, make_response, request, rende
 from flask_cors import CORS
 from controllers.report import Report, ReportHandler
 from controllers.weather import Rule, WeatherHandler
+from controllers.parking import ParkingLot, ParkingHandler
 
 app = Flask(__name__, template_folder="templates")
 logging.basicConfig(level=logging.DEBUG)
@@ -28,6 +29,7 @@ cors = CORS(app)
 
 report_handler = ReportHandler()
 weather_handler = WeatherHandler()
+parking_handler = ParkingHandler()
 # weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, "[{\"lat\": 36.86149, \"lng\": 30.63743},{\"lat\": 36.86341, \"lng\": 30.72463}]")
 
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
@@ -287,6 +289,103 @@ def delete_rule(park_id, rule_id):
 
 def delete_report(park_id, report_id):
     result = report_handler.delete_report(park_id, report_id)
+    return app.response_class(json.dumps(result), content_type='application/json')
+
+@app.route('/pw/api/parking', methods=['GET', 'POST', 'DELETE'])
+def get_parking_base():
+    """
+    Base method that handles all requests ending in /parking. 
+
+    Args:
+        None
+    Returns:
+        GET - A single json report
+        GET - A list of json reports
+        POST - The new report
+    """
+    park_id = request.args.get('park')
+    lot_id = request.args.get('id')
+
+    if request.method == 'GET':
+        if park_id and not lot_id: # If only the park was provided then get list of all reports
+            return get_parking_lots(int(park_id))
+        
+        elif park_id and lot_id: # If park and report id were provided then return specified report
+            return get_parking_lot(int(park_id), int(lot_id))
+
+    elif request.method == 'POST':
+        if park_id and lot_id:
+            return update_parking_lot(park_id, lot_id, request)
+        elif park_id:
+            return create_parking_lot(request)
+
+    elif request.method == 'DELETE':
+        if park_id and lot_id:
+            return delete_parking_lot(park_id, lot_id)
+        else:
+            abort(400, "Missing park_id and lot_id")
+    else:
+        abort(400)
+
+def get_parking_lots(park_id):
+    """
+    Helper function that gets all parking lots associated with the park
+
+    Args:
+        park_id: The id of the park
+    Returns:
+        A list of json report objects
+    """
+    parking_lots_list_json = parking_handler.get_parking_lots_list_json(park_id)
+    return parking_lots_list_json
+
+def get_parking_lot(park_id, lot_id):
+    """
+    Helper function that gets a specfic parking lot
+
+    Args:
+        park_id: The id of the park
+        reprot_id: The id of the report
+    Returns:
+        A single json report object
+    """
+    parking_lot_json = parking_handler.get_parking_lot_json(park_id, lot_id)
+    return parking_lot_json
+
+def create_parking_lot(request):
+    if not request.json:
+        abort(400, "Error in parking request")
+    
+    park_id = int(request.args.get('park'))
+
+    lot_json = parking_handler.create_parking_lot(request.json['lot_name'],
+                     park_id,
+                     request.json['lot_lat'],
+                     request.json['lot_long'],
+                     request.json['description'],
+                     request.json['severity']
+                     )
+
+    return lot_json
+
+def update_parking_lot(park_id, lot_id, request):
+    if not request.json:
+        abort(400)
+    
+    lot_json = parking_handler.update_parking_lot(lot_id,
+                     request.json['lot_name'],
+                     park_id,
+                     request.json['lot_lat'],
+                     request.json['lot_long'],
+                     request.json['description'],
+                     request.json['severity']
+                     )
+
+    return lot_json
+
+
+def delete_parking_lot(park_id, lot_id):
+    result = parking_handler.delete_parking_lot(park_id, lot_id)
     return app.response_class(json.dumps(result), content_type='application/json')
 
 @app.route('/')

@@ -36,9 +36,6 @@ class ReportHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-        self.temp_fake_db = []
-        self.report_dictionary = {}
-
     def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
