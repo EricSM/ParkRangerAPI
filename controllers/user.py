@@ -29,11 +29,9 @@ class UserHandler:
 
     def create_user(self, email, password):
         # TODO: return some kind of message if user already exists
-
-        # random 32 character salt
-        salt = os.urandom(32)
-        # Derived key
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000).hex()
+        
+        salt = os.urandom(32) # random 32 character salt
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000).hex() # Derived key
 
         new_user = User(email)
         insert_sql_string = "Insert into Users(password_hash, salt, email) Values (?,?,?)"
@@ -41,7 +39,7 @@ class UserHandler:
         try:
             return self.create_helper(insert_sql_string, dk, salt, new_user)
         except Exception as e:
-            print('Encountered database error while creating a report.\nRetrying.\n{}'.format(str(e)))
+            print('Encountered database error while creating a new user.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
@@ -54,7 +52,7 @@ class UserHandler:
         self.cursor.execute(query, 
                                 dk,
                                 salt,
-                                new_user.email) # Insert it into database
+                                new_user.email) # Insert new user into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
