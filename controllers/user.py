@@ -3,6 +3,18 @@ import datetime as dt
 import jsonpickle
 import textwrap
 import hashlib
+import os
+
+class User:
+    def __init__(self, email):
+        self.uid = 0 # Int
+        self.email = email # String
+
+    def set_id(self, uid):
+        self.uid = uid
+
+    def __eq__(self, other):
+        return self.uid == other.uid
 
 class UserHandler:
     def __init__(self):
@@ -15,6 +27,37 @@ class UserHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-def create_user(self, email, password):
-    # TODO: implement create_user
-    return
+    def create_user(self, email, password):
+        # TODO: return some kind of message if user already exists
+
+        # random 32 character salt
+        salt = os.urandom(32)
+        # Derived key
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000).hex()
+
+        new_user = User(email)
+        insert_sql_string = "Insert into Users(password_hash, salt, email) Values (?,?,?)"
+
+        try:
+            return self.create_helper(insert_sql_string, dk, salt, new_user)
+        except Exception as e:
+            print('Encountered database error while creating a report.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.create_helper(insert_sql_string, dk, salt, new_user)
+
+        return None
+
+    def create_helper(self, query, dk, salt, new_user):
+        self.cursor.execute(query, 
+                                dk,
+                                salt,
+                                new_user.email) # Insert it into database
+        self.cnxn.commit()
+        self.cursor.execute("Select @@IDENTITY")
+        new_id = int(self.cursor.fetchone()[0])
+        new_user.set_id(new_id)
+
+        return jsonpickle.encode(new_user)
