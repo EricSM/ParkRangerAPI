@@ -8,8 +8,8 @@ import os
 # TODO: add more comments
 
 class User:
-    def __init__(self, email):
-        self.uid = 0 # Int
+    def __init__(self, uid, email):
+        self.uid = uid # Int
         self.email = email # String
 
     def set_id(self, uid):
@@ -35,61 +35,61 @@ class UserHandler:
         salt = os.urandom(32) # random 32 character salt
         dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000).hex() # Derived key
 
-        new_user = User(email)
         insert_sql_string = "Insert into Users(password_hash, salt, email) Values (?,?,?)"
 
         try:
-            return self.create_helper(insert_sql_string, dk, salt, new_user)
+            return self.create_helper(insert_sql_string, dk, salt, email)
         except Exception as e:
             print('Encountered database error while creating a new user.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
-            return self.create_helper(insert_sql_string, dk, salt, new_user)
+            return self.create_helper(insert_sql_string, dk, salt, email)
 
         return None
 
-    def create_helper(self, query, dk, salt, new_user):
+    def create_helper(self, query, dk, salt, email):
         self.cursor.execute(query, 
                                 dk,
                                 salt,
-                                new_user.email) # Insert new user into database
+                                email) # Insert new user into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
-        new_user.set_id(new_id)
+        new_user = User(new_id, email)
 
         return jsonpickle.encode(new_user)
 
-def get_user(self, email, password):
-    # TODO: handle if user does not exist
-    # TODO: keep track of logged user
-    print("User signing in.")
-    selection_string = "Select uID, password_hash, salt, From Users Where email = ?"
+    def get_user(self, email, password):
+        # TODO: handle if user does not exist
+        # TODO: keep track of logged user
+        print("User signing in.")
+        selection_string = "Select uID, password_hash, salt, From Users Where email = ?"
 
-    try:
-        return self.get_helper(selection_string, email, password)
-    except Exception as e:
-        print('Encountered database error while signing in user.\nRetrying.\n{}'.format(str(e)))
-        cnxn = pyodbc.connect(driver)
+        try:
+            return self.get_helper(selection_string, email, password)
+        except Exception as e:
+            print('Encountered database error while signing in user.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
 
-        self.cnxn = cnxn
-        self.cursor = cnxn.cursor()
-        return self.get_helper(selection_string, email, password)
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.get_helper(selection_string, email, password)
 
-    return None
+        return None
 
-def get_helper(self, query, email, password):
-    self.cursor.execute(query, email)
-    result = self.cursor.fetchone()
-    print(result)
+    def get_helper(self, query, email, password):
+        self.cursor.execute(query, email)
+        result = self.cursor.fetchone()
+        print(result)
 
-    # hash key derived from user submitted password
-    dk = hashlib.pbkdf2_hmac('sha256', password.encode(), str(result.salt).encode(), 100000).hex()
+        # hash key derived from user submitted password
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), str(result.salt).encode(), 100000).hex()
 
-    if result and dk == result.password_hash:
-        logged_user = User(str(result.email))
-        logged_user.set_id(result.uid)
-        
-        return logged_user
+        if result and dk == result.password_hash:
+            logged_user = User(result.uid, email)
+            
+            return logged_user
+        elif dk != result.password_hash: # wrong password
+            return User(None, email)
