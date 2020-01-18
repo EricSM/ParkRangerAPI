@@ -5,6 +5,8 @@ import textwrap
 import hashlib
 import os
 
+# TODO: add more comments
+
 class User:
     def __init__(self, email):
         self.uid = 0 # Int
@@ -31,7 +33,7 @@ class UserHandler:
         # TODO: return some kind of message if user already exists
         
         salt = os.urandom(32) # random 32 character salt
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000).hex() # Derived key
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000).hex() # Derived key
 
         new_user = User(email)
         insert_sql_string = "Insert into Users(password_hash, salt, email) Values (?,?,?)"
@@ -84,10 +86,10 @@ def get_helper(self, query, email, password):
     print(result)
 
     # hash key derived from user submitted password
-    dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), result.salt, 100000).hex()
+    dk = hashlib.pbkdf2_hmac('sha256', password.encode(), str(result.salt).encode(), 100000).hex()
 
     if result and dk == result.password_hash:
-        logged_user = User(result.email)
+        logged_user = User(str(result.email))
         logged_user.set_id(result.uid)
         
         return logged_user
