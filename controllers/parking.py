@@ -108,9 +108,9 @@ class ParkingHandler:
                             new_parking_lot.description,
                             lot_id) # Insert it into database
         self.cnxn.commit()
-        self.cursor.execute("Select @@IDENTITY")
-        new_id = int(self.cursor.fetchone()[0])
-        new_parking_lot.id = new_id
+        # self.cursor.execute("Select @@IDENTITY")
+        # new_id = int(self.cursor.fetchone()[0])
+        # new_parking_lot.id = new_id
 
         return jsonpickle.encode(new_parking_lot)
 

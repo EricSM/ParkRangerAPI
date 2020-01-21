@@ -21,3 +21,6 @@ curl -i -H "Content-Type: application/json" -X POST -d  "{"condition_interval_sy
 curl -i -H "Content-Type: application/json" -X POST -d  '{"condition_interval_symbol":"geq","condition_interval_value":0, "condition_type":"temp","description":"Test description", "name":"Test Name", "path":[{"lat":36.86149,"lng":30.63743},{"lat":36.86341,"lng":30.72463}]}' http://127.0.0.1:5000/pw/api/weather?park=0
 
 curl -i "http://127.0.0.1:5000/pw/api/weather?park=0&refresh=1"
+
+# Parking
+curl -i -H "Content-Type: application/json" -X POST -d "{\"lot_name\":\"Test name\",\"lot_lat\":100.0, \"lot_long\":100.0,\"description\":\"A test description\",\"status\":0}" http://localhost:5000/pw/api/parking?park=0
