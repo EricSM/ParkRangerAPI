@@ -61,25 +61,25 @@ class UserHandler:
 
         return jsonpickle.encode(new_user)
 
-    def get_user(self, email, password):
+    def login(self, email, password):
         # TODO: handle if user does not exist
         # TODO: keep track of logged user
         print("User signing in.")
         selection_string = "Select uID, password_hash, salt, From Users Where email = ?"
 
         try:
-            return self.get_helper(selection_string, email, password)
+            return self.login_helper(selection_string, email, password)
         except Exception as e:
             print('Encountered database error while signing in user.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
-            return self.get_helper(selection_string, email, password)
+            return self.login_helper(selection_string, email, password)
 
         return None
 
-    def get_helper(self, query, email, password):
+    def login_helper(self, query, email, password):
         self.cursor.execute(query, email)
         result = self.cursor.fetchone()
         print(result)
