@@ -62,7 +62,6 @@ class UserHandler:
         return jsonpickle.encode(new_user)
 
     def login(self, email, password):
-        # TODO: handle if user does not exist
         # TODO: keep track of logged user
         print("User signing in.")
         selection_string = "Select uID, password_hash, salt, From Users Where email = ?"
@@ -89,7 +88,8 @@ class UserHandler:
 
         if result and dk == result.password_hash:
             logged_user = User(result.uid, email)
-            
-            return logged_user
-        elif dk != result.password_hash: # wrong password
-            return User(None, email)
+            return jsonpickle.encode(logged_user)
+
+        elif result and dk != result.password_hash: # wrong password
+            logged_user = User(None, email)
+            return jsonpickle.encode(logged_user)
