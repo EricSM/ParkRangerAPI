@@ -35,24 +35,23 @@ class UserHandler:
         salt = os.urandom(32) # random 32 character salt
         dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000).hex() # Derived key
 
-        insert_sql_string = "Insert into Users(password_hash, salt, email) Values (?,?,?)"
+        insert_sql_string = "Insert into Users(password_hash, salt, email) Values ({},?,?)".format(dk)
 
         try:
-            return self.create_helper(insert_sql_string, dk, salt, email)
+            return self.create_helper(insert_sql_string, salt, email)
         except Exception as e:
             print('Encountered database error while creating a new user.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
-            return self.create_helper(insert_sql_string, dk, salt, email)
+            return self.create_helper(insert_sql_string, salt, email)
 
         return None
 
-    def create_helper(self, query, dk, salt, email):
+    def create_helper(self, query, salt, email):
         self.cursor.execute(query, 
-                                dk,
-                                salt,
+                                salt, 
                                 email) # Insert new user into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
