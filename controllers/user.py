@@ -29,9 +29,7 @@ class UserHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-    def create_user(self, email, password):
-        # TODO: return some kind of message if user already exists
-        
+    def create_user(self, email, password):        
         salt = os.urandom(32) # random 32 character salt
         dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000).hex() # Derived key
 
@@ -55,10 +53,16 @@ class UserHandler:
                                 email) # Insert new user into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
-        new_id = int(self.cursor.fetchone()[0])
-        new_user = User(new_id, email)
 
-        return jsonpickle.encode(new_user)
+        row = self.cursor.fetchval()
+
+        if row:
+            new_id = int(row)
+            new_user = User(new_id, email)
+            return jsonpickle.encode(new_user)
+        else:
+            new_user = User(None, email)
+            return jsonpickle.encode(new_user)
 
     def login(self, email, password):
         # TODO: keep track of logged user
