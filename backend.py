@@ -22,6 +22,7 @@ from flask_cors import CORS
 from controllers.report import Report, ReportHandler
 from controllers.weather import Rule, WeatherHandler
 from controllers.parking import ParkingLot, ParkingHandler
+from controllers.user import UserHandler
 
 app = Flask(__name__, template_folder="templates")
 logging.basicConfig(level=logging.DEBUG)
@@ -30,7 +31,50 @@ cors = CORS(app)
 report_handler = ReportHandler()
 weather_handler = WeatherHandler()
 parking_handler = ParkingHandler()
+user_handler = UserHandler()
 # weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, "[{\"lat\": 36.86149, \"lng\": 30.63743},{\"lat\": 36.86341, \"lng\": 30.72463}]")
+
+@app.route('/pw/api/login', methods=['POST'])
+def login_base():
+    """
+    """
+    if request.method == 'POST':
+        return login(request)
+    else:
+        abort(400, "Login URI only accepts POST requests.")
+
+
+def login(request):
+    if not request.json:
+        abort(400, "Missing request body")
+    
+    login_json = user_handler.login(request.json['email'],
+                                    request.json['password'])
+
+    return login_json
+
+@app.route('/pw/api/login/new', methods=['POST'])
+def new_login_base():
+    """
+    """
+    if request.method == 'POST':
+        return create_user(request)
+    else:
+        abort(400, "Login URI only accepts POST requests.")
+
+
+def create_user(request):
+    if not request.json:
+        abort(400, "Missing request body")
+    
+    new_user_json = user_handler.create_user(request.json['email'],
+                                             request.json['password'],
+                                             request.json['f_name'],
+                                             request.json['l_name'],
+                                             request.json['park_id'])
+
+    return new_user_json
+
 
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
 def get_report_base():
