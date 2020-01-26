@@ -60,7 +60,7 @@ class UserHandler:
             new_id = int(row)
             new_user = User(new_id, email)
             return jsonpickle.encode(new_user)
-        else:
+        else: # user already exists
             new_user = User(None, email)
             return jsonpickle.encode(new_user)
 
@@ -94,5 +94,8 @@ class UserHandler:
             return jsonpickle.encode(logged_user)
 
         elif result and dk != result.password_hash: # wrong password
-            logged_user = User(None, email)
-            return jsonpickle.encode(logged_user)
+            existing_user = User(None, email)
+            return jsonpickle.encode(existing_user)
+        else: # user doesn't exist
+            null_user = User(None, None)
+            return jsonpickle.encode(null_user)
