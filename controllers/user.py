@@ -38,7 +38,7 @@ class UserHandler:
     def create_user(self, email, password, f_name, l_name, park_id):        
         salt = os.urandom(32) # random 32 character salt
         #salt = b64encode(os.urandom(32)).decode('utf-8')
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000).hex() # Derived key
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000) # Derived key
         token = random.randrange(1000000000000000,9999999999999999) # OS Random gives weird characters
 
         insert_sql_string = textwrap.dedent("""
@@ -105,7 +105,7 @@ class UserHandler:
     def login(self, email, password):
         # TODO: keep track of logged user
         print("User signing in.")
-        selection_string = "SELECT uID, password_hash, salt FROM Users Where email = ?"
+        selection_string = "SELECT * FROM Users Where email = ?"
 
         try:
             return self.login_helper(selection_string, email, password)
@@ -125,7 +125,7 @@ class UserHandler:
         print(result)
 
         # hash key derived from user submitted password
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), bytes(result.salt, 'raw_unicode_escape'), 100000).hex()
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), result.salt, 100000)
 
         if result and dk == result.password_hash:
             logged_user = User(result.uID,
