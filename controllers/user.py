@@ -141,3 +141,12 @@ class UserHandler:
             return "Incorrect email or password."
         else: # user doesn't exist
             return "User does not exist."
+
+    def check_user(self, token, park_id):
+        token_query = "SELECT 1 FROM Users WHERE token = ? AND park_id = ?"
+        self.cursor.execute(token_query, token, park_id)
+        result = self.cursor.fetchone()
+
+        if result:
+            return True
+        return False

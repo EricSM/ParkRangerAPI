@@ -94,6 +94,7 @@ def get_report_base():
     """
     park_id = request.args.get('park')
     report_id = request.args.get('id')
+    token = request.args.get('token')
 
     if request.method == 'GET':
         if park_id and not report_id: # If only the park was provided then get list of all reports
@@ -103,18 +104,30 @@ def get_report_base():
             return get_report(int(park_id), int(report_id))
 
     elif request.method == 'POST':
-        if park_id and report_id:
-            return update_report(park_id, report_id, request)
-        elif park_id:
-            return create_report(request)
+        if token:
+            if user_handler.check_user(token, park_id):
+                if park_id and report_id:
+                    return update_report(park_id, report_id, request)
+                elif park_id:
+                    return create_report(request)
+            else:
+                abort(400, "Invalid token.")
+        else:
+            abort(400, "Missing user token.")
 
     elif request.method == 'DELETE':
-        if park_id and report_id:
-            return delete_report(park_id, report_id)
+        if token:
+            if user_handler.check_user(token, park_id):
+                if park_id and report_id:
+                    return delete_report(park_id, report_id)
+                else:
+                    abort(400, "Missing park_id and report_id.")
+            else:
+                abort(400, "Invalid token.")
         else:
-            abort(400, "Missing park_id and report_id")
+            abort(400, "Missing user token.")
     else:
-        abort(400)
+        abort(400, "We only accept GET/POST/DELETE")
 
     
 def get_reports(park_id):
@@ -152,7 +165,8 @@ def create_report(request):
         The newly created json report object
     """
     if not request.json or not 'loc_name' in request.json:
-        abort(400)
+        abort(400, "Error in create rueport request, missing request body")
+
     
     park_id = int(request.args.get('park'))
 
@@ -177,7 +191,8 @@ def update_report(park_id, report_id, request):
         The newly created json report object
     """
     if not request.json or not 'loc_name' in request.json:
-        abort(400)
+        abort(400, "Error in update report request, missing request body")
+
     
     report_json = report_handler.update_report(
                      park_id,
@@ -208,6 +223,7 @@ def get_rules_base():
     rule_id = request.args.get('id')
     active = request.args.get('active')
     refresh = request.args.get('refresh')
+    token = request.args.get('token')
 
     if request.method == 'GET':
         if park_id and not rule_id and not active and not refresh: # If only the park was provided then get list of all reports
@@ -226,18 +242,31 @@ def get_rules_base():
                 return refresh_rules(int(park_id), None)
 
     elif request.method == 'POST':
-        if park_id and rule_id:
-            return update_rule(park_id, rule_id, request)
-        elif park_id:
-            return create_rule(request)
+        if token:
+            if user_handler.check_user(token, park_id):
+                if park_id and rule_id:
+                    return update_rule(park_id, rule_id, request)
+                elif park_id:
+                    return create_rule(request)
+            else:
+                abort(400, "Invalid token.")
+        else:
+            abort(400, "Missing user token.")
 
     elif request.method == 'DELETE':
-        if park_id and rule_id:
-            return delete_rule(park_id, rule_id)
+        if token:
+            if user_handler.check_user(token, park_id):
+                if park_id and rule_id:
+                    return delete_rule(park_id, rule_id)
+                else:
+                    abort(400, "Missing park_id and rule_id")
+            else:
+                abort(400, "Invalid token.")
         else:
-            abort(400, "Missing park_id and rule_id")
+            abort(400, "Missing user token.")
     else:
-        abort(400, "Error in rule request")
+        abort(400, "We only accept GET/POST/DELETE")
+
 
 def refresh_rules(park_id, active):
     weather_handler.refresh_rules(park_id)
@@ -268,8 +297,9 @@ def get_rules(park_id):
     return rules_list_json
 
 def create_rule(request):
-    if not request.json or not 'name' in request.json:
-        abort(400, "Error in rule request")
+    if not request.json:
+        abort(400, "Error in create rule request, missing request body")
+
     
     park_id = int(request.args.get('park'))
 
@@ -293,8 +323,9 @@ def create_rule(request):
     return report_json
 
 def update_rule(park_id, rule_id, request):
-    if not request.json or not 'name' in request.json:
-        abort(400, "Error in rule request")
+    if not request.json:
+        abort(400, "Error in update rule request, missing request body")
+
    
     # Example post json
 
@@ -349,6 +380,7 @@ def get_parking_base():
     """
     park_id = request.args.get('park')
     lot_id = request.args.get('id')
+    token = request.args.get('token')
 
     if request.method == 'GET':
         if park_id and not lot_id: # If only the park was provided then get list of all reports
@@ -358,16 +390,28 @@ def get_parking_base():
             return get_parking_lot(int(park_id), int(lot_id))
 
     elif request.method == 'POST':
-        if park_id and lot_id:
-            return update_parking_lot(park_id, lot_id, request)
-        elif park_id:
-            return create_parking_lot(request)
+        if token:
+            if user_handler.check_user(token, park_id):
+                if park_id and lot_id:
+                    return update_parking_lot(park_id, lot_id, request)
+                elif park_id:
+                    return create_parking_lot(request)
+            else:
+                abort(400, "Invalid token.")
+        else:
+            abort(400, "Missing user token.")
 
     elif request.method == 'DELETE':
-        if park_id and lot_id:
-            return delete_parking_lot(park_id, lot_id)
+        if token:
+            if user_handler.check_user(token, park_id):
+                if park_id and lot_id:
+                    return delete_parking_lot(park_id, lot_id)
+                else:
+                    abort(400, "Missing park_id and lot_id")
+            else:
+                abort(400, "Invalid token.")
         else:
-            abort(400, "Missing park_id and lot_id")
+            abort(400, "Missing user token.")
     else:
         abort(400)
 
@@ -398,7 +442,7 @@ def get_parking_lot(park_id, lot_id):
 
 def create_parking_lot(request):
     if not request.json:
-        abort(400, "Error in parking request")
+        abort(400, "Error in parking request, missing request body.")
     
     park_id = int(request.args.get('park'))
 
@@ -414,7 +458,7 @@ def create_parking_lot(request):
 
 def update_parking_lot(park_id, lot_id, request):
     if not request.json:
-        abort(400)
+        abort(400, "Error in update parking request, missing request body")
     
     lot_json = parking_handler.update_parking_lot(lot_id,
                      request.json['lot_name'],
