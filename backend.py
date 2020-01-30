@@ -104,12 +104,12 @@ def get_report_base():
             return get_report(int(park_id), int(report_id))
 
     elif request.method == 'POST':
-        if token:
+        if park_id:
+            return create_report(request)
+        elif token:
             if user_handler.check_user(token, park_id):
                 if park_id and report_id:
-                    return update_report(park_id, report_id, request)
-                elif park_id:
-                    return create_report(request)
+                    return update_report(park_id, report_id, request)          
             else:
                 abort(400, "Invalid token.")
         else:
