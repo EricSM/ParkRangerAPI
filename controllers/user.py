@@ -138,9 +138,9 @@ class UserHandler:
             return jsonpickle.encode(logged_user)
 
         elif result and dk != result.password_hash: # wrong password
-            return "Incorrect email or password."
+            return -1
         else: # user doesn't exist
-            return "User does not exist."
+            return -2
 
     def change_password(self, uID, password, new_password):
         print("User changing password for this account:")
@@ -187,10 +187,10 @@ class UserHandler:
                 else: return "Update failed."
             else: # wrong password
                 print("Wrong email/password.")
-                return "Incorrect email or password."
+                return -1 #"Incorrect email or password."
         else: # user doesn't exist
             print("Account doesn't exist")
-            return "User does not exist."
+            return -2 # "User does not exist."
 
     def check_user(self, token, park_id):
         token_query = "SELECT 1 FROM Users WHERE token = ? AND park_id = ?"

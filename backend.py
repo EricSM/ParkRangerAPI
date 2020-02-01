@@ -39,7 +39,12 @@ def login_base():
     """
     """
     if request.method == 'POST':
-        return login(request)
+        login_code = login(request)
+        if login_code == -1:
+            abort(401, "Invalid username or password")
+        elif login_code == -2:
+            abort(401, "User not found")
+        return login_code
     else:
         abort(400, "Login URI only accepts POST requests.")
 
@@ -72,6 +77,11 @@ def create_user(request):
                                              request.json['f_name'],
                                              request.json['l_name'],
                                              request.json['park_id'])
+    # Just making sure that we return the correct error codes.
+    if new_user_json == -1:
+        abort(401, "Invalid username or password")
+    elif new_user_json == -2:
+        abort(401, "User not found")
 
     return new_user_json
 
@@ -111,7 +121,7 @@ def get_report_base():
                 if park_id and report_id:
                     return update_report(park_id, report_id, request)          
             else:
-                abort(400, "Invalid token.")
+                abort(401, "Invalid token.")
         else:
             abort(400, "Missing user token.")
 
@@ -123,7 +133,7 @@ def get_report_base():
                 else:
                     abort(400, "Missing park_id and report_id.")
             else:
-                abort(400, "Invalid token.")
+                abort(401, "Invalid token.")
         else:
             abort(400, "Missing user token.")
     else:
@@ -261,7 +271,7 @@ def get_rules_base():
                 else:
                     abort(400, "Missing park_id and rule_id")
             else:
-                abort(400, "Invalid token.")
+                abort(401, "Invalid token.")
         else:
             abort(400, "Missing user token.")
     else:
@@ -397,7 +407,7 @@ def get_parking_base():
                 elif park_id:
                     return create_parking_lot(request)
             else:
-                abort(400, "Invalid token.")
+                abort(401, "Invalid token.")
         else:
             abort(400, "Missing user token.")
 
@@ -409,7 +419,7 @@ def get_parking_base():
                 else:
                     abort(400, "Missing park_id and lot_id")
             else:
-                abort(400, "Invalid token.")
+                abort(401, "Invalid token.")
         else:
             abort(400, "Missing user token.")
     else:
@@ -487,6 +497,10 @@ def not_found(e):
 @app.errorhandler(400)
 def bad_request(e):
     return jsonify(error=str(e)), 400
+
+@app.errorhandler(401)
+def invalid_login(e):
+    return jsonify(error=str(e)), 401
 
 if __name__ == '__main__':
     app.run(debug=True)
