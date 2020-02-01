@@ -18,11 +18,11 @@ class User:
         self.park_id = park_id # Int
         self.token = token # Int
 
-    def set_id(self, uid):
-        self.uid = uid
+    def set_id(self, uID):
+        self.uID = uID
 
     def __eq__(self, other):
-        return self.uid == other.uid
+        return self.uID == other.uID
 
 class UserHandler:
     def __init__(self):
@@ -140,6 +140,56 @@ class UserHandler:
         elif result and dk != result.password_hash: # wrong password
             return "Incorrect email or password."
         else: # user doesn't exist
+            return "User does not exist."
+
+    def change_password(self, uID, password, new_password):
+        print("User changing password for this account:")
+        new_salt = os.urandom(32) # random 32 character salt
+        new_dk = hashlib.pbkdf2_hmac('sha256', new_password.encode(), new_salt, 100000) # Derived key
+        new_token = random.randrange(1000000000000000,9999999999999999) # OS Random gives weird characters
+
+        try:
+            return self.change_password_helper(uID, password, new_dk, new_salt, new_token)
+        except Exception as e:
+            print('Encountered database error while signing in user.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.change_password_helper(uID, password, new_dk, new_salt, new_token)
+
+        return None
+
+    def change_password_helper(self, uID, password, new_dk, new_salt, new_token):
+        result = self.cursor.execute("SELECT * FROM Users Where uID = ?", uID).fetchone()
+
+        if result:
+            print(result)
+            # hash key derived from user submitted password
+            dk = hashlib.pbkdf2_hmac('sha256', password.encode(), result.salt, 100000)
+
+            if dk == result.password_hash:
+                update_query = "update Users set password_hash = ?, salt = ?, token = ? where uID = ?"
+                updated = self.cursor.execute(update_query, uID, new_dk, new_salt, new_token).rowcount
+                self.cnxn.commit()
+                print("Password changed.")
+
+                # return new token
+                if updated == 1:
+                    logged_user = User(result.uID,
+                                    result.email,
+                                    result.f_name,
+                                    result.l_name,
+                                    result.park_id,
+                                    new_token)
+
+                    return jsonpickle.encode(logged_user)
+                else: return "Update failed."
+            else: # wrong password
+                print("Wrong email/password.")
+                return "Incorrect email or password."
+        else: # user doesn't exist
+            print("Account doesn't exist")
             return "User does not exist."
 
     def check_user(self, token, park_id):
