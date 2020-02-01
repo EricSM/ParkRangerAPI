@@ -138,8 +138,9 @@ class UserHandler:
 
                 return jsonpickle.encode(logged_user)
 
-        elif result and dk != result.password_hash: # wrong password
-            return -1
+            else: # wrong password
+                return -1
+                
         else: # user doesn't exist
             return -1
 
