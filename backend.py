@@ -42,9 +42,8 @@ def login_base():
         login_code = login(request)
         if login_code == -1:
             abort(401, "Invalid username or password")
-        elif login_code == -2:
-            abort(401, "User not found")
-        return login_code
+        else:
+            return login_code
     else:
         abort(400, "Login URI only accepts POST requests.")
 
@@ -80,10 +79,8 @@ def create_user(request):
     # Just making sure that we return the correct error codes.
     if new_user_json == -1:
         abort(401, "Invalid username or password")
-    elif new_user_json == -2:
-        abort(401, "User not found")
-
-    return new_user_json
+    else:
+        return new_user_json
 
 
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])

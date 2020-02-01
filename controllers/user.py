@@ -125,22 +125,23 @@ class UserHandler:
         print(result)
 
         # hash key derived from user submitted password
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), result.salt, 100000)
+        if result:
+            dk = hashlib.pbkdf2_hmac('sha256', password.encode(), result.salt, 100000)
 
-        if result and dk == result.password_hash:
-            logged_user = User(result.uID,
-                            result.email,
-                            result.f_name,
-                            result.l_name,
-                            result.park_id,
-                            result.token)
+            if dk == result.password_hash:
+                logged_user = User(result.uID,
+                                result.email,
+                                result.f_name,
+                                result.l_name,
+                                result.park_id,
+                                result.token)
 
-            return jsonpickle.encode(logged_user)
+                return jsonpickle.encode(logged_user)
 
         elif result and dk != result.password_hash: # wrong password
             return -1
         else: # user doesn't exist
-            return -2
+            return -1
 
     def change_password(self, uID, password, new_password):
         print("User changing password for this account:")
@@ -190,7 +191,7 @@ class UserHandler:
                 return -1 #"Incorrect email or password."
         else: # user doesn't exist
             print("Account doesn't exist")
-            return -2 # "User does not exist."
+            return -1 # "User does not exist."
 
     def check_user(self, token, park_id):
         token_query = "SELECT 1 FROM Users WHERE token = ? AND park_id = ?"
