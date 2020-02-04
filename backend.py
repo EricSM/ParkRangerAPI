@@ -38,6 +38,7 @@ user_handler = UserHandler()
 def login_base():
     """
     """
+    print(request.__dict__)
     if request.method == 'POST':
         login_code = login(request)
         if login_code == -1:
@@ -61,6 +62,8 @@ def login(request):
 def new_login_base():
     """
     """
+    print(request.__dict__)
+
     if request.method == 'POST':
         return create_user(request)
     else:
@@ -102,6 +105,8 @@ def get_report_base():
     park_id = request.args.get('park')
     report_id = request.args.get('id')
     token = request.args.get('token')
+    print(request.__dict__)
+
 
     if request.method == 'GET':
         if park_id and not report_id: # If only the park was provided then get list of all reports
@@ -231,6 +236,8 @@ def get_rules_base():
     active = request.args.get('active')
     refresh = request.args.get('refresh')
     token = request.args.get('token')
+    print(request.__dict__)
+
 
     if request.method == 'GET':
         if park_id and not rule_id and not active and not refresh: # If only the park was provided then get list of all reports
@@ -388,6 +395,8 @@ def get_parking_base():
     park_id = request.args.get('park')
     lot_id = request.args.get('id')
     token = request.args.get('token')
+    print(request.__dict__)
+
 
     if request.method == 'GET':
         if park_id and not lot_id: # If only the park was provided then get list of all reports
