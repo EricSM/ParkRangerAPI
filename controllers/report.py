@@ -50,7 +50,7 @@ class ReportHandler:
         Returns:
             Returns the id of the newly created report
         """
-    
+        print("Creating a new report.")
 
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
 
@@ -96,7 +96,7 @@ class ReportHandler:
         Returns:
             Report object
         """
-        print("Get Report")
+        print("Getting Report.")
         selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
         print(selection_string)
 
@@ -137,6 +137,8 @@ class ReportHandler:
         Returns:
             Array of Report objects
         """
+        print("Getting reports.")
+
         selection_string = "Select id, loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {}".format(park_id)
         
         try:
@@ -186,6 +188,7 @@ class ReportHandler:
         Returns:
             The updated report
         """
+        print("Update a report.")
         
         updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Update the old report
 
@@ -238,6 +241,7 @@ class ReportHandler:
         Returns:
             True or False
         """
+        print("Delete a report.")
 
         delete_string = "Delete from Reports where park_id = ? AND ID = ?"
 
@@ -271,10 +275,6 @@ class ReportHandler:
         return jsonpickle.encode(self.get_report(park_id, id))
 
     def get_reports_list_json(self, park_id):
-        """
-        TODO(Ian): This should return all cached reports
-        """
-    
         return jsonpickle.encode(self.get_reports(park_id))
 
 

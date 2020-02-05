@@ -35,7 +35,8 @@ class UserHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-    def create_user(self, email, password, f_name, l_name, park_id):        
+    def create_user(self, email, password, f_name, l_name, park_id):   
+        print("Creating user.")     
         salt = os.urandom(32) # random 32 character salt
         #salt = b64encode(os.urandom(32)).decode('utf-8')
         dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000) # Derived key
@@ -195,6 +196,7 @@ class UserHandler:
             return -1 # "User does not exist."
 
     def check_user(self, token, park_id):
+        print("Checking user credentials.")
         token_query = "SELECT 1 FROM Users WHERE token = ? AND park_id = ?"
         self.cursor.execute(token_query, token, park_id)
         result = self.cursor.fetchone()

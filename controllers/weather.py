@@ -43,6 +43,7 @@ class WeatherHandler:
         self.cursor = cnxn.cursor()
 
     def add_rule(self, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):
+        print("Creating new weather rule.")
         """
         Creates a new rule and adds it to the rules list
 
@@ -75,6 +76,7 @@ class WeatherHandler:
         return None
 
     def update_rule_active(self, rule, active):
+        print("Setting weather rule to active.")
         update_string = textwrap.dedent("""
         Update WeatherRules
         Set activated = ?
@@ -99,7 +101,8 @@ class WeatherHandler:
                             rule.rule_id)
         self.cnxn.commit()
 
-    def update_rule(self, rule_id, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):   
+    def update_rule(self, rule_id, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):
+        print("Updating weather rule.")   
         updated_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
         updated_rule.rule_id = rule_id
 
@@ -176,7 +179,7 @@ class WeatherHandler:
         Returns:
             True or False
         """
-
+        print("Deleting weather rule.")
         delete_string = "Delete from WeatherRules where park_id = ? AND rule_id = ?"
 
         try:
@@ -204,6 +207,7 @@ class WeatherHandler:
         Returns:
             The JSON returned by OpenWeather
         """
+        print("Getting weather from weather API")
         request_url = open_weather_request_url.format(rule.center_lat, rule.center_long, self.units, app_id)
         request = requests.get(request_url)
         return request.json()
@@ -217,6 +221,7 @@ class WeatherHandler:
         Returns:
             A list of rules that are triggered by the weather events
         """
+        print("Checking weather rules against weather API.")
         triggered_rules = []
         for rule in self.rules:
             if rule.park_id == park_id: #TODO(Ian) This just runs locally
@@ -230,6 +235,7 @@ class WeatherHandler:
         return triggered_rules
 
     def get_rules(self, park_id):
+        print("Get weather rules.")
         selection_string = textwrap.dedent("""
         Select
             rule_id,
@@ -283,6 +289,7 @@ class WeatherHandler:
         return None
 
     def get_active_rules(self, park_id, active):
+        print("Get active weather rules.")
         selection_string = textwrap.dedent("""
         Select
             rule_id,
@@ -344,6 +351,7 @@ class WeatherHandler:
         return jsonpickle.encode(self.get_active_rules(park_id, active))
 
     def get_rule(self, park_id, rule_id):
+        print("Getting specific rule.")
         selection_string = textwrap.dedent("""
         Select
             rule_id,
@@ -399,6 +407,7 @@ class WeatherHandler:
         return jsonpickle.encode(self.get_rule(park_id, ruke_id))
 
     def refresh_rules(self, park_id):
+        print("Refreshing all rules.")
         park_rules = self.get_rules(park_id)
         if park_rules:
             for r in park_rules:

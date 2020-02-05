@@ -42,7 +42,8 @@ user_handler = UserHandler()
 def login_base():
     """
     """
-    print(request.__dict__)
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
     if request.method == 'POST':
         login_code = login(request)
         if login_code == -1:
@@ -66,7 +67,8 @@ def login(request):
 def new_login_base():
     """
     """
-    print(request.__dict__)
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
 
     if request.method == 'POST':
         return create_user(request)
@@ -114,7 +116,8 @@ def get_report_base():
     park_id = request.args.get('park')
     report_id = request.args.get('id')
     token = request.args.get('token')
-    print(request.__dict__)
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
 
 
     if request.method == 'GET':
@@ -251,7 +254,8 @@ def get_rules_base():
     active = request.args.get('active')
     refresh = request.args.get('refresh')
     token = request.args.get('token')
-    print(request.__dict__)
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
 
 
     if request.method == 'GET':
@@ -416,7 +420,8 @@ def get_parking_base():
     park_id = request.args.get('park')
     lot_id = request.args.get('id')
     token = request.args.get('token')
-    print(request.__dict__)
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
 
 
     if request.method == 'GET':

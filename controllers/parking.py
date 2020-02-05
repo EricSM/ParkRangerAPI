@@ -28,8 +28,8 @@ class ParkingHandler:
         self.cursor = cnxn.cursor()
 
     def create_parking_lot(self, lot_name, park_id, lot_lat, lot_long, description, severity):
+        print("Create new parking lot.")
         new_parking_lot = ParkingLot(lot_name, park_id, lot_lat, lot_long, description, severity)
-
         insert_sql_string = textwrap.dedent("""
             Insert Into ParkingLots(park_id,
              loc_lat, 
@@ -70,6 +70,8 @@ class ParkingHandler:
         return jsonpickle.encode(new_parking_lot)
 
     def update_parking_lot(self, lot_id, lot_name, park_id, lot_lat, lot_long, description, severity):
+        print("Update parking lot.")
+
         new_parking_lot = ParkingLot(lot_name, park_id, lot_lat, lot_long, description, severity)
         new_parking_lot.id = lot_id
 
@@ -123,6 +125,8 @@ class ParkingHandler:
         Returns:
             Array of Report objects
         """
+        print("Get parking lots.")
+
         selection_string = "Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description From ParkingLots Where park_id = {}".format(park_id)
         
         try:
@@ -165,6 +169,8 @@ class ParkingHandler:
         Returns:
             ParkingLot object
         """
+        print("Get a parking lot.")
+
         selection_string = "Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description From ParkingLots  Where park_id = {} AND lot_id = {}".format(park_id, lot_id)
 
         try:
@@ -198,6 +204,8 @@ class ParkingHandler:
         return jsonpickle.encode(self.get_parking_lot(park_id, lot_id))
 
     def delete_parking_lot(self, park_id, lot_id):
+        print("Delete a parking lot.")
+
         delete_string = "Delete from ParkingLots where park_id = ? AND lot_id = ?"
 
         try:
