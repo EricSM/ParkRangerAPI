@@ -32,8 +32,12 @@ report_handler = ReportHandler()
 weather_handler = WeatherHandler()
 parking_handler = ParkingHandler()
 user_handler = UserHandler()
-# weather_handler.add_rule("rain", 0, ">", "Test", "Test Name", 0, "[{\"lat\": 36.86149, \"lng\": 30.63743},{\"lat\": 36.86341, \"lng\": 30.72463}]")
 
+################################################################
+#                            LOGIN                             #
+################################################################
+
+#region Login
 @app.route('/pw/api/login', methods=['POST'])
 def login_base():
     """
@@ -84,8 +88,13 @@ def create_user(request):
         abort(401, "Invalid username or password")
     else:
         return new_user_json
+#endregion
 
+################################################################
+#                           REPORTS                            #
+################################################################
 
+#region Reports
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
 def get_report_base():
     """
@@ -218,7 +227,13 @@ def update_report(park_id, report_id, request):
                      0)
     print(report_json, flush=True)
     return report_json
+#endregion
 
+################################################################
+#                           WEATHER                            #
+################################################################
+
+#region Weather
 @app.route('/pw/api/weather', methods=['GET', 'POST', 'DELETE'])
 def get_rules_base():
     """
@@ -379,7 +394,13 @@ def delete_rule(park_id, rule_id):
 def delete_report(park_id, report_id):
     result = report_handler.delete_report(park_id, report_id)
     return app.response_class(json.dumps(result), content_type='application/json')
+#endregion
 
+################################################################
+#                           PARKING                            #
+################################################################
+
+#region Parking
 @app.route('/pw/api/parking', methods=['GET', 'POST', 'DELETE'])
 def get_parking_base():
     """
@@ -492,6 +513,8 @@ def delete_parking_lot(park_id, lot_id):
     result = parking_handler.delete_parking_lot(park_id, lot_id)
     return app.response_class(json.dumps(result), content_type='application/json')
 
+#endregion
+
 @app.route('/')
 def home():
     return render_template('home.html', title='Home')
@@ -510,4 +533,3 @@ def invalid_login(e):
 
 if __name__ == '__main__':
     app.run(debug=True)
-    # app.run(host='127.0.0.1', port=8080, debug=True)
