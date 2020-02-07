@@ -194,6 +194,42 @@ class UserHandler:
             print("Account doesn't exist")
             return -1 # "User does not exist."
 
+    def update_user(self, uID, new_email, new_f_name, new_l_name, park_id, token):
+        # TODO: check user's token
+        # User object with updated information
+        updated_user = User(uID, new_email, new_f_name, new_l_name, park_id, token)
+
+        try:
+            return self.update_helper(updated_user)
+        except Exception as e:
+            print('Encountered database error while updating user info.\nRetrying.\n{}'.format(str(e)))
+            cnxn = pyodbc.connect(driver)
+
+            self.cnxn = cnxn
+            self.cursor = cnxn.cursor()
+            return self.update_helper(updated_user)
+
+        return None
+
+    def update_helper(self, updated_user):
+        update_sql_string = textwrap.dedent("""
+            Update Users
+            Set email = ?,
+                f_name = ?, 
+                l_name = ?
+            Where uID = ?
+        """)
+
+        # Update user's information with provided user object
+        self.cursor.execute(update_sql_string, 
+                            updated_user.email,
+                            updated_user.f_name,
+                            updated_user.l_name,
+                            updated_user.uID)
+        self.cnxn.commit() # Commit changes
+
+        return jsonpickle.encode(updated_user)
+
     def check_user(self, token, park_id):
         token_query = "SELECT 1 FROM Users WHERE token = ? AND park_id = ?"
         self.cursor.execute(token_query, token, park_id)
