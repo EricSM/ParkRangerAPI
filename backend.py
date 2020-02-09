@@ -128,7 +128,7 @@ def get_report_base():
             return get_report(int(park_id), int(report_id))
 
     elif request.method == 'POST':
-        if park_id:
+        if park_id and not report_id and not token:
             return create_report(request)
         elif token:
             if user_handler.check_user(token, park_id):
@@ -137,7 +137,7 @@ def get_report_base():
             else:
                 abort(401, "Invalid token.")
         else:
-            abort(400, "Missing user token.")
+            abort(400, "Missing url parameters.")
 
     elif request.method == 'DELETE':
         if token:
@@ -226,7 +226,7 @@ def update_report(park_id, report_id, request):
                         request.json['description'],
                         request.json['severity'],
                         request.json['closure'],
-                        0)
+                        request.json['approved_status'])
 
     print(report_json, flush=True)
     return report_json
