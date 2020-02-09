@@ -74,7 +74,8 @@ class ReportHandler:
                                 new_report.loc_name, 
                                 str(new_report.loc_lat), 
                                 str(new_report.loc_long), 
-                                new_report.report_description, 
+                                new_report.
+                                description, 
                                 new_report.severity,
                                 str(new_report.closure), 
                                 new_report.date,
@@ -97,7 +98,7 @@ class ReportHandler:
             Report object
         """
         print("Getting Report.")
-        selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, date, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
+        selection_string = "Select loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
         print(selection_string)
 
         try:
@@ -121,7 +122,7 @@ class ReportHandler:
                                     result.park_id,
                                     result.loc_lat,
                                     result.loc_long,
-                                    result.report_description,
+                                    result.description,
                                     result.severity,
                                     result.closure,
                                     result.approved_status)
@@ -139,7 +140,7 @@ class ReportHandler:
         """
         print("Getting reports.")
 
-        selection_string = "Select id, loc_name, loc_lat, loc_long, report_description, severity, closure, date, park_id, approved_status From Reports Where park_id = {}".format(park_id)
+        selection_string = "Select id, loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {}".format(park_id)
         
         try:
             return self.get_list_helper(selection_string)
@@ -163,7 +164,7 @@ class ReportHandler:
                                         result.park_id,
                                         result.loc_lat,
                                         result.loc_long,
-                                        result.report_description,
+                                        result.description,
                                         result.severity,
                                         result.closure,
                                         result.approved_status)
@@ -197,7 +198,7 @@ class ReportHandler:
             set loc_name = ?, 
                 loc_lat = ?, 
                 loc_long = ?, 
-                report_description = ?, 
+                description = ?, 
                 severity = ?, 
                 closure = ?, 
                 approved_status = ?
