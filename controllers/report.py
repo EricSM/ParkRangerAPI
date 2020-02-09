@@ -10,17 +10,17 @@ class Report:
         self.loc_name = loc_name # String
         self.loc_lat = loc_lat # Float
         self.loc_long = loc_long # Float
-        self.report_description = description # String
+        self.description = description # String
         self.severity = severity # Int
         self.closure = closure # Bit
-        self.report_datetime = dt.datetime.now()# .strftime("%m/%d/%Y, %H:%M:%S") # String
+        self.date = dt.datetime.now()# .strftime("%m/%d/%Y, %H:%M:%S") # String
         self.approved_status = approved_status # Bit
 
     def set_id(self, id):
         self.id = id
 
     def insert_string(self):
-        return "{}, {}, {}, {}, {}, {}, {}".format(self.loc_name, str(self.loc_lat), str(self.loc_long), self.report_description, str(self.severity), str(self.closure), self.report_datetime)
+        return "{}, {}, {}, {}, {}, {}, {}".format(self.loc_name, str(self.loc_lat), str(self.loc_long), self.description, str(self.severity), str(self.closure), self.date)
 
     def __eq__(self, other):
         return self.id == other.id
@@ -54,7 +54,7 @@ class ReportHandler:
 
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
 
-        insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?)"
+        insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?)"
         
         
         try:
@@ -74,10 +74,10 @@ class ReportHandler:
                                 new_report.loc_name, 
                                 str(new_report.loc_lat), 
                                 str(new_report.loc_long), 
-                                new_report.report_description, 
+                                new_report.description, 
                                 new_report.severity,
                                 str(new_report.closure), 
-                                new_report.report_datetime,
+                                new_report.date,
                                 new_report.park_id,
                                 new_report.approved_status) # Insert it into database
         self.cnxn.commit()
@@ -97,7 +97,7 @@ class ReportHandler:
             Report object
         """
         print("Getting Report.")
-        selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
+        selection_string = "Select loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
         print(selection_string)
 
         try:
@@ -121,7 +121,7 @@ class ReportHandler:
                                     result.park_id,
                                     result.loc_lat,
                                     result.loc_long,
-                                    result.report_description,
+                                    result.description,
                                     result.severity,
                                     result.closure,
                                     result.approved_status)
@@ -139,7 +139,7 @@ class ReportHandler:
         """
         print("Getting reports.")
 
-        selection_string = "Select id, loc_name, loc_lat, loc_long, report_description, severity, closure, report_datetime, park_id, approved_status From Reports Where park_id = {}".format(park_id)
+        selection_string = "Select id, loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {}".format(park_id)
         
         try:
             return self.get_list_helper(selection_string)
@@ -163,7 +163,7 @@ class ReportHandler:
                                         result.park_id,
                                         result.loc_lat,
                                         result.loc_long,
-                                        result.report_description,
+                                        result.description,
                                         result.severity,
                                         result.closure,
                                         result.approved_status)
@@ -197,7 +197,7 @@ class ReportHandler:
             set loc_name = ?, 
                 loc_lat = ?, 
                 loc_long = ?, 
-                report_description = ?, 
+                description = ?, 
                 severity = ?, 
                 closure = ?, 
                 approved_status = ?
@@ -222,7 +222,7 @@ class ReportHandler:
                             report.loc_name, 
                             str(report.loc_lat), 
                             str(report.loc_long), 
-                            str(report.report_description), 
+                            str(report.description), 
                             str(report.severity), 
                             str(report.closure), 
                             report.approved_status,
