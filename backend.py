@@ -217,17 +217,29 @@ def update_report(park_id, report_id, request):
     if not request.json or not 'loc_name' in request.json:
         abort(400, "Error in update report request, missing request body")
 
-    
-    report_json = report_handler.update_report(
-                     park_id,
-                     report_id,
-                     request.json['loc_name'],
-                     request.json['loc_lat'],
-                     request.json['loc_long'],
-                     request.json['description'],
-                     request.json['severity'],
-                     request.json['closure'],
-                     0)
+    if request.json['description']:
+        report_json = report_handler.update_report(
+                        park_id,
+                        report_id,
+                        request.json['loc_name'],
+                        request.json['loc_lat'],
+                        request.json['loc_long'],
+                        request.json['description'],
+                        request.json['severity'],
+                        request.json['closure'],
+                        0)
+    else:
+        if request.json['description']:
+        report_json = report_handler.update_report(
+                        park_id,
+                        report_id,
+                        request.json['loc_name'],
+                        request.json['loc_lat'],
+                        request.json['loc_long'],
+                        request.json['report_description'],
+                        request.json['severity'],
+                        request.json['closure'],
+                        0)
     print(report_json, flush=True)
     return report_json
 #endregion
