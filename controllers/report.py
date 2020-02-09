@@ -74,12 +74,12 @@ class ReportHandler:
                                 new_report.loc_name, 
                                 str(new_report.loc_lat), 
                                 str(new_report.loc_long), 
-                                new_report.description, 
+                                new_report.report_description, 
                                 new_report.severity,
                                 str(new_report.closure), 
                                 new_report.date,
                                 new_report.park_id,
-                                new_report.approved_status) # Insert it into database
+                                str(new_report.approved_status)) # Insert it into database
         self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
@@ -97,7 +97,7 @@ class ReportHandler:
             Report object
         """
         print("Getting Report.")
-        selection_string = "Select loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
+        selection_string = "Select loc_name, loc_lat, loc_long, report_description, severity, closure, date, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
         print(selection_string)
 
         try:
@@ -121,7 +121,7 @@ class ReportHandler:
                                     result.park_id,
                                     result.loc_lat,
                                     result.loc_long,
-                                    result.description,
+                                    result.report_description,
                                     result.severity,
                                     result.closure,
                                     result.approved_status)
@@ -139,7 +139,7 @@ class ReportHandler:
         """
         print("Getting reports.")
 
-        selection_string = "Select id, loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {}".format(park_id)
+        selection_string = "Select id, loc_name, loc_lat, loc_long, report_description, severity, closure, date, park_id, approved_status From Reports Where park_id = {}".format(park_id)
         
         try:
             return self.get_list_helper(selection_string)
@@ -163,7 +163,7 @@ class ReportHandler:
                                         result.park_id,
                                         result.loc_lat,
                                         result.loc_long,
-                                        result.description,
+                                        result.report_description,
                                         result.severity,
                                         result.closure,
                                         result.approved_status)
@@ -197,7 +197,7 @@ class ReportHandler:
             set loc_name = ?, 
                 loc_lat = ?, 
                 loc_long = ?, 
-                description = ?, 
+                report_description = ?, 
                 severity = ?, 
                 closure = ?, 
                 approved_status = ?
@@ -225,7 +225,7 @@ class ReportHandler:
                             str(report.description), 
                             str(report.severity), 
                             str(report.closure), 
-                            report.approved_status,
+                            str(report.approved_status),
                             report_id)
         self.cursor.commit()
 
