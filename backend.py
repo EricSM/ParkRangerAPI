@@ -229,7 +229,6 @@ def update_report(park_id, report_id, request):
                         request.json['closure'],
                         0)
     else:
-        if request.json['description']:
         report_json = report_handler.update_report(
                         park_id,
                         report_id,
