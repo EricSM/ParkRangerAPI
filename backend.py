@@ -85,6 +85,23 @@ def create_user(request):
     else:
         return new_user_json
 
+def update_user(request):
+    if not request.json:
+        abort(400, "Missing request body")
+    
+    updated_user_json = user_handler.update_user(request.json['uID'],
+                                             request.json['email'],
+                                             request.json['f_name'],
+                                             request.json['l_name'],
+                                             request.json['park_id'],
+                                             request.json['token'])
+    # Just making sure that we return the correct error codes.
+    if updated_user_json == -1:
+        abort(401, "Invalid username")
+    else:
+        print(updated_user_json, flush=True)
+        return updated_user_json
+
 
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
 def get_report_base():
