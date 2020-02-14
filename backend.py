@@ -85,6 +85,19 @@ def create_user(request):
     else:
         return new_user_json
 
+@app.route('/pw/api/profile', methods=['POST'])
+def update_user_base():
+    """
+    """
+    uID = request.args.get('uID')
+    token = request.args.get('token')
+    print(request.__dict__)
+
+    if request.method == 'POST' and uID and token:
+        return update_user(request)
+    else:
+        abort(400, "Account update URI only accepts POST requests.")
+
 def update_user(request):
     if not request.json:
         abort(400, "Missing request body")
