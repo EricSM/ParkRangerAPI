@@ -23,6 +23,7 @@ from controllers.report import Report, ReportHandler
 from controllers.weather import Rule, WeatherHandler
 from controllers.parking import ParkingLot, ParkingHandler
 from controllers.user import UserHandler
+from controllers.fire import Fire, WildFireHandler
 
 app = Flask(__name__, template_folder="templates")
 logging.basicConfig(level=logging.DEBUG)
@@ -32,6 +33,7 @@ report_handler = ReportHandler()
 weather_handler = WeatherHandler()
 parking_handler = ParkingHandler()
 user_handler = UserHandler()
+fire_handler = WildFireHandler()
 
 ################################################################
 #                            LOGIN                             #
@@ -92,11 +94,6 @@ def create_user(request):
         return new_user_json
 #endregion
 
-<<<<<<< HEAD
-################################################################
-#                           REPORTS                            #
-################################################################
-=======
 @app.route('/pw/api/profile', methods=['POST'])
 def update_user_base():
     """
@@ -127,7 +124,6 @@ def update_user(request):
         print(updated_user_json, flush=True)
         return updated_user_json
 
->>>>>>> ddbc5b7da4f9c8098170ba9b9242765b846cab3f
 
 #region Reports
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
@@ -551,6 +547,31 @@ def delete_parking_lot(park_id, lot_id):
     result = parking_handler.delete_parking_lot(park_id, lot_id)
     return app.response_class(json.dumps(result), content_type='application/json')
 
+#endregion
+
+################################################################
+#                           FIRE                               #
+################################################################
+
+#region fire
+@app.route('/pw/api/wildfire', methods=['GET'])
+def get_fire_base():
+    """
+    Gets wildfires in the US
+
+    Args:
+        None
+    Returns:
+        GET - A wildfire
+    """
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
+
+
+    if request.method == 'GET':
+        return fire_handler.get_and_parse_json()
+    else:
+        abort(400, "We only accept GET")
 #endregion
 
 @app.route('/')

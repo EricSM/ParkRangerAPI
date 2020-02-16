@@ -13,8 +13,8 @@ class Request:
         self.args = None
 
 class TestBaseMethods(unittest.TestCase):
-    self.cache_report_id = 0
-    self.cache_report_json = None
+    cache_report_id = 0
+    cache_report_json = None
 
     ################################################################
     #                            LOGIN                             #
@@ -109,7 +109,7 @@ class TestBaseMethods(unittest.TestCase):
 
         request.json['condition_type'] = 'temp'
         request.json['condition_interval_value'] = -100
-        request.json['condition_interval_symbol'] 'qeq'
+        request.json['condition_interval_symbol'] = 'geq'
         request.json['description'] = 'Test rule, should always trigger'
         request.json['name'] = 'Test Rule'
         request.json['path'] = "path\":[{\"lat\":36.86149,\"lng\":30.63743},{\"lat\":36.86341,\"lng\":30.72463}]"
