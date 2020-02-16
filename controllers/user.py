@@ -196,7 +196,6 @@ class UserHandler:
             return -1 # "User does not exist."
 
     def update_user(self, uID, new_email, new_f_name, new_l_name, park_id, token):
-        # TODO: check user's token
         # User object with updated information
         updated_user = User(uID, new_email, new_f_name, new_l_name, park_id, token)
 
