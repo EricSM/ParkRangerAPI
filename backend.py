@@ -94,6 +94,34 @@ def create_user(request):
         return new_user_json
 #endregion
 
+#region Update Account
+@app.route('/pw/api/password', methods=['POST'])
+def change_password_base():
+    """
+    """
+    uID = request.args.get('uID')
+    token = request.args.get('token')
+    print(request.__dict__)
+
+    if request.method == 'POST' and uID and token:
+        return change_password(request)
+    else:
+        abort(400, "Account update URI only accepts POST requests.")
+
+def change_password(request):
+    if not request.json:
+        abort(400, "Missing request body")
+    
+    new_password_json = user_handler.change_password(request.json['uID'],
+        request.json['password'],
+        request.json['new_password'])
+    # Just making sure that we return the correct error codes.
+    if new_password_json == -1:
+        abort(401, "Invalid uID")
+    else:
+        print(new_password_json, flush=True)
+        return new_password_json
+
 @app.route('/pw/api/profile', methods=['POST'])
 def update_user_base():
     """
@@ -119,11 +147,11 @@ def update_user(request):
                                              request.json['token'])
     # Just making sure that we return the correct error codes.
     if updated_user_json == -1:
-        abort(401, "Invalid username")
+        abort(401, "Invalid uID")
     else:
         print(updated_user_json, flush=True)
         return updated_user_json
-
+#endregion
 
 #region Reports
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
