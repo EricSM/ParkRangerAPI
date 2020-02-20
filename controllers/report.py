@@ -2,6 +2,7 @@ import pyodbc
 import datetime as dt
 import jsonpickle
 import textwrap
+from distutils import util
 
 class Report:
     def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
@@ -172,6 +173,36 @@ class ReportHandler:
                 reports.append(fetched_report)
             return reports
 
+    def get_reports_filter(self, park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
+        reports = self.get_reports(park_id)
+        if len(reports) == 0:
+            return reports
+
+        reports = sorted(reports, key=lambda x: x.severity)
+
+        if minSeverity:
+            minSeverity = int(minSeverity)
+            reports = [r for r in reports if r.severity >= minSeverity]
+        if maxSeverity:
+            maxSeverity = int(maxSeverity)
+            reports = [r for r in reports if r.severity <= maxSeverity]
+        if specificSeverity:
+            specificSeverity = int(specificSeverity)
+            reports = [r for r in reports if r.severity == specificSeverity]
+        if approvedStatus:
+            approvedStatus = bool(util.strtobool(approvedStatus))
+            reports = [r for r in reports if r.approved_status == approvedStatus]
+        if locLon and locLat:
+            locLon = float(locLon)
+            locLat = float(locLat)
+            if not locRange:
+                reports = [r for r in reports if abs(r.loc_long - locLon) <= 0.1 and abs(r.loc_lat - locLat) <= 0.1] #By default we allow a small amount of error
+            elif locRange:
+                locRange = float(locRange)
+                reports = [r for r in reports if abs(r.loc_long - locLon) <= locRange and abs(r.loc_lat - locLat) <= locRange]
+
+        return reports
+                
     def update_report(self, park_id, rule_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Updates the report associated with the given ID with the given arguments, then returns the report.
@@ -277,6 +308,19 @@ class ReportHandler:
 
     def get_reports_list_json(self, park_id):
         return jsonpickle.encode(self.get_reports(park_id))
+    
+    def get_reports_filter_json(self, park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
+        return jsonpickle.encode(self.get_reports_filter(int(park_id), 
+                                      minSeverity, 
+                                      maxSeverity, 
+                                      specificSeverity, 
+                                      approvedStatus,
+                                      locLon,
+                                      locLat,
+                                      locRange,
+                                      minDate,
+                                      maxDate
+                                    ))
 
 
 

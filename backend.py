@@ -172,6 +172,16 @@ def get_report_base():
     """
     park_id = request.args.get('park')
     report_id = request.args.get('id')
+    min_severity = request.args.get('minSeverity')
+    max_severity = request.args.get('maxSeverity')
+    severity = request.args.get('severity')
+    approved_status = request.args.get('approvedStatus')
+    loc_lon = request.args.get('locLon')
+    loc_lat = request.args.get('locLat')
+    loc_range = request.args.get('locRange')
+    min_date = request.args.get('minDate')
+    max_date = request.args.get('maxDate')
+
     token = request.args.get('token')
     log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
     print(log_str)
@@ -179,7 +189,18 @@ def get_report_base():
 
     if request.method == 'GET':
         if park_id and not report_id: # If only the park was provided then get list of all reports
-            return get_reports(int(park_id))
+            # return get_reports(int(park_id))
+            return get_reports_filter_json(int(park_id), 
+                                      min_severity, 
+                                      max_severity, 
+                                      severity, 
+                                      approved_status,
+                                      loc_lon,
+                                      loc_lat,
+                                      loc_range,
+                                      min_date,
+                                      max_date
+                                    )
         
         elif park_id and report_id: # If park and report id were provided then return specified report
             return get_report(int(park_id), int(report_id))
@@ -221,6 +242,10 @@ def get_reports(park_id):
         A list of json report objects
     """
     reports_list_json = report_handler.get_reports_list_json(park_id)
+    return reports_list_json
+
+def get_reports_filter_json(park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
+    reports_list_json = report_handler.get_reports_filter_json(park_id, minSeverity, maxSeverity, specificSeverity, approvedStatus, locLon, locLat, locRange, minDate, maxDate)
     return reports_list_json
 
 def get_report(park_id, report_id):
