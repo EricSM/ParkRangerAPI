@@ -176,6 +176,7 @@ def get_report_base():
     max_severity = request.args.get('maxSeverity')
     severity = request.args.get('severity')
     approved_status = request.args.get('approvedStatus')
+    closure = request.args.get('closure')
     loc_lon = request.args.get('locLon')
     loc_lat = request.args.get('locLat')
     loc_range = request.args.get('locRange')
@@ -195,6 +196,7 @@ def get_report_base():
                                       max_severity, 
                                       severity, 
                                       approved_status,
+                                      closure,
                                       loc_lon,
                                       loc_lat,
                                       loc_range,
@@ -244,8 +246,8 @@ def get_reports(park_id):
     reports_list_json = report_handler.get_reports_list_json(park_id)
     return reports_list_json
 
-def get_reports_filter_json(park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
-    reports_list_json = report_handler.get_reports_filter_json(park_id, minSeverity, maxSeverity, specificSeverity, approvedStatus, locLon, locLat, locRange, minDate, maxDate)
+def get_reports_filter_json(park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, closure = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
+    reports_list_json = report_handler.get_reports_filter_json(park_id, minSeverity, maxSeverity, specificSeverity, approvedStatus, closure, locLon, locLat, locRange, minDate, maxDate)
     return reports_list_json
 
 def get_report(park_id, report_id):

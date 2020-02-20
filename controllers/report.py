@@ -173,7 +173,7 @@ class ReportHandler:
                 reports.append(fetched_report)
             return reports
 
-    def get_reports_filter(self, park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
+    def get_reports_filter(self, park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, closure = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
         reports = self.get_reports(park_id)
         if len(reports) == 0:
             return reports
@@ -309,12 +309,13 @@ class ReportHandler:
     def get_reports_list_json(self, park_id):
         return jsonpickle.encode(self.get_reports(park_id))
     
-    def get_reports_filter_json(self, park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
+    def get_reports_filter_json(self, park_id, minSeverity = None, maxSeverity = None, specificSeverity = None, approvedStatus = None, closure = None, locLon = None, locLat = None, locRange = None, minDate = None, maxDate = None):
         return jsonpickle.encode(self.get_reports_filter(int(park_id), 
                                       minSeverity, 
                                       maxSeverity, 
                                       specificSeverity, 
                                       approvedStatus,
+                                      closure, 
                                       locLon,
                                       locLat,
                                       locRange,
