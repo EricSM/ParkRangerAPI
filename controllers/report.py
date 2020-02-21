@@ -99,23 +99,26 @@ class ReportHandler:
             Report object
         """
         print("Getting Report.")
-        selection_string = "Select loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status From Reports Where park_id = {} AND ID = {}".format(park_id, id)
+        selection_string = textwrap.dedent("""
+            Select loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status 
+            From Reports 
+            Where park_id = ? AND ID = ?""")
         print(selection_string)
 
         try:
-            return self.get_helper(selection_string)
+            return self.get_helper(selection_string, park_id, id)
         except Exception as e:
             print('Encountered database error while retrieving a report.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
-            return self.get_helper(selection_string)
+            return self.get_helper(selection_string, park_id, id)
 
         return None
 
-    def get_helper(self, query):
-        self.cursor.execute(query)
+    def get_helper(self, query, park_id, report_id):
+        self.cursor.execute(query, park_id, report_id)
         result = self.cursor.fetchone()
         print(result)
         if result:
