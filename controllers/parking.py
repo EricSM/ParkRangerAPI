@@ -127,7 +127,8 @@ class ParkingHandler:
         """
         print("Get parking lots.")
 
-        selection_string = textwrap.dedent("""Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
+        selection_string = textwrap.dedent(""" 
+            Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
             From ParkingLots 
             Where park_id = ?""")
         
@@ -173,22 +174,25 @@ class ParkingHandler:
         """
         print("Get a parking lot.")
 
-        selection_string = "Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description From ParkingLots  Where park_id = {} AND lot_id = {}".format(park_id, lot_id)
+        selection_string = textwrap.dedent("""
+            Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description
+            From ParkingLots
+            Where park_id = ? AND lot_id = ?""")
 
         try:
-            return self.get_helper(selection_string)
+            return self.get_helper(selection_string, park_id, lot_id)
         except Exception as e:
             print('Encountered database error while retrieving a report.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
-            return self.get_helper(selection_string)
+            return self.get_helper(selection_string, park_id, lot_id)
 
         return None
 
-    def get_helper(self, query):
-        self.cursor.execute(query)
+    def get_helper(self, query, park_id, lot_id):
+        self.cursor.execute(query, park_id, lot_id)
         result = self.cursor.fetchone()
         if result:
             fetched_lot = ParkingLot(result.loc_name,
