@@ -127,10 +127,12 @@ class ParkingHandler:
         """
         print("Get parking lots.")
 
-        selection_string = "Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description From ParkingLots Where park_id = {}".format(park_id)
+        selection_string = textwrap.dedent("""Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
+            From ParkingLots 
+            Where park_id = ?""")
         
         try:
-            return self.get_list_helper(selection_string)
+            return self.get_list_helper(selection_string, park_id)
         except Exception as e:
             print('Encountered database error while retrieving a list of reports.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
@@ -138,11 +140,11 @@ class ParkingHandler:
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
 
-            return self.get_list_helper(selection_string)
+            return self.get_list_helper(selection_string, park_id)
         return None
     
-    def get_list_helper(self, query):
-        self.cursor.execute(query)
+    def get_list_helper(self, query, park_id):
+        self.cursor.execute(query, park_id)
         results = self.cursor.fetchall()
         lots = []
         if results:
