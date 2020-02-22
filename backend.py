@@ -155,6 +155,7 @@ def update_user(request):
 
 #region Reports
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_report_base():
     """
     Base method that handles all requests ending in /reports. 
@@ -322,6 +323,7 @@ def update_report(park_id, report_id, request):
 
 #region Weather
 @app.route('/pw/api/weather', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_rules_base():
     """
     If the method is POST then creates a new report object for that park.
@@ -490,6 +492,7 @@ def delete_report(park_id, report_id):
 
 #region Parking
 @app.route('/pw/api/parking', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_parking_base():
     """
     Base method that handles all requests ending in /parking. 
@@ -610,6 +613,7 @@ def delete_parking_lot(park_id, lot_id):
 
 #region fire
 @app.route('/pw/api/wildfire', methods=['GET'])
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_fire_base():
     """
     Gets wildfires in the US
