@@ -1,5 +1,6 @@
 import requests
 import jsonpickle
+import math
 
 
 class Fire:
@@ -26,28 +27,30 @@ class WildFireHandler:
 
         return lon/len(rings[0]), lat/len(rings[0])
 
-    def parse_firedata(self, json_body):
+    def check_range(self, centerLon, centerLat, locLon, locLat, locRange):
+        dist = math.sqrt((locLon - centerLon)**2 + (locLat - centerLat)**2)
+        if dist <= locRange:
+            return True
+        else:
+            return False
+
+    def parse_firedata(self, json_body, locLon, locLat, locRange):
         fires = []
         for feature in json_body['features']:
             if 'geometry' in feature:
                 name = feature['attributes']['IncidentName']
                 lon, lat = self.find_center(feature['geometry']['rings'])
-                new_fire = Fire(name, lon, lat)
-                fires.append(new_fire)
+                if locLon and locLat and locRange:
+                    if self.check_range(lon, lat, locLon, locLat, locRange):
+                        new_fire = Fire(name, lon, lat)
+                        fires.append(new_fire)
+                else:
+                    new_fire = Fire(name, lon, lat)
+                    fires.append(new_fire)
 
         return fires
 
-    def get_and_parse_json(self):
+    def get_and_parse_json_filter(self, locLon = None, locLat = None, locRange = None):
         data = self.get_firedata()
-        return jsonpickle.encode(self.parse_firedata(data), unpicklable=False)
-
-
-# def test_main():
-#     wf = WildFire()
-#     out = wf.get_firedata()
-#     fires = wf.parse_firedata(out)
-#     print()
-
-
-# if __name__ == "__main__":
-#     test_main()
+        parsed_data = self.parse_firedata(data, locLon, locLat, locRange)
+        return jsonpickle.encode(parsed_data, unpicklable=False)

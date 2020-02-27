@@ -623,12 +623,19 @@ def get_fire_base():
     Returns:
         GET - A wildfire
     """
+    loc_lon = request.args.get('locLon')
+    loc_lat = request.args.get('locLat')
+    loc_range = request.args.get('locRange')
+
     log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
     print(log_str)
 
 
     if request.method == 'GET':
-        return fire_handler.get_and_parse_json()
+        if loc_lat and loc_lon and loc_range:
+            return fire_handler.get_and_parse_json_filter(loc_lon, loc_lat, loc_range)
+        else:
+            return fire_handler.get_and_parse_json_filter()
     else:
         abort(400, "We only accept GET")
 #endregion
