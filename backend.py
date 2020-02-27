@@ -24,6 +24,7 @@ from controllers.weather import Rule, WeatherHandler
 from controllers.parking import ParkingLot, ParkingHandler
 from controllers.user import UserHandler
 from controllers.fire import Fire, WildFireHandler
+from controllers.park import Park, ParkHandler
 
 app = Flask(__name__, template_folder="templates")
 logging.basicConfig(level=logging.DEBUG)
@@ -34,6 +35,39 @@ weather_handler = WeatherHandler()
 parking_handler = ParkingHandler()
 user_handler = UserHandler()
 fire_handler = WildFireHandler()
+park_handler = ParkHandler()
+
+
+################################################################
+#                            Parks                             #
+################################################################
+
+#region Parks
+
+@app.route('/pw/api/parks', methods=['GET'])
+def get_parks_base():
+    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    print(log_str)
+
+    park_id = request.args.get('park')
+
+
+    if request.method == 'GET':
+        if park_id:
+            return get_park(int(park_id))
+        return get_parks()
+    else:
+        abort(400, "We only accept GET")
+
+def get_parks():
+    parks_list_json = park_handler.get_parks_json()
+    return parks_list_json
+
+def get_park(park_id):
+    park_json = park_handler.get_park_json(park_id)
+    return park_json
+
+#endregion
 
 ################################################################
 #                            LOGIN                             #
@@ -155,7 +189,6 @@ def update_user(request):
 
 #region Reports
 @app.route('/pw/api/reports', methods=['GET', 'POST', 'DELETE'])
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_report_base():
     """
     Base method that handles all requests ending in /reports. 
@@ -323,7 +356,6 @@ def update_report(park_id, report_id, request):
 
 #region Weather
 @app.route('/pw/api/weather', methods=['GET', 'POST', 'DELETE'])
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_rules_base():
     """
     If the method is POST then creates a new report object for that park.
@@ -492,7 +524,6 @@ def delete_report(park_id, report_id):
 
 #region Parking
 @app.route('/pw/api/parking', methods=['GET', 'POST', 'DELETE'])
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_parking_base():
     """
     Base method that handles all requests ending in /parking. 
@@ -613,7 +644,6 @@ def delete_parking_lot(park_id, lot_id):
 
 #region fire
 @app.route('/pw/api/wildfire', methods=['GET'])
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def get_fire_base():
     """
     Gets wildfires in the US
@@ -633,7 +663,7 @@ def get_fire_base():
 
     if request.method == 'GET':
         if loc_lat and loc_lon and loc_range:
-            return fire_handler.get_and_parse_json_filter(loc_lon, loc_lat, loc_range)
+            return fire_handler.get_and_parse_json_filter(float(loc_lon), float(loc_lat), float(loc_range))
         else:
             return fire_handler.get_and_parse_json_filter()
     else:

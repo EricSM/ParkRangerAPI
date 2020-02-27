@@ -14,7 +14,7 @@ class Request:
 
 class TestBaseMethods(unittest.TestCase):
     cache_report_id = 0
-    cache_report_json = None
+    cache_report_json = {}
 
     ################################################################
     #                            LOGIN                             #
@@ -47,7 +47,7 @@ class TestBaseMethods(unittest.TestCase):
         request.json['email'] = 'albus@hogwarts.edu'
         request.json['password'] = 'password'
 
-        response = json.load(login(request))
+        response = login(request)
 
         self.assertEqual(response['email'], request.json['email'])
     #endregion
@@ -67,9 +67,10 @@ class TestBaseMethods(unittest.TestCase):
         request.json['severity'] = 0
         request.json['closure'] = 0
 
-        request.args['park_id'] = 99
+        request.args = {}
+        request.args['park'] = 99
 
-        response = json.load(create_report(request))
+        response = create_report(request)
 
         self.cache_report_id = response['park_id'] # Save this to delete the report later
 
@@ -80,17 +81,17 @@ class TestBaseMethods(unittest.TestCase):
         self.cache_report_json['loc_name'] = "Test Update Report"
         request.json = self.cache_report_json
 
-        response = json.load(update_report(99, self.cache_report_id, self.update_report_json))
+        response = json.load(update_report(99, self.cache_report_id, request))
 
-        self.assertEqual(response['loc_name'], self.cache_report_json['loc_name'])
+        self.assertEqual(str(response['loc_name']), str(self.cache_report_json['loc_name']))
 
     def test_get_report(self):
         response = json.load(get_report(99, self.cache_report_id))
-        self.assertEqual(resposne['loc_name'], "Test Update Report")
+        self.assertEqual(str(response['loc_name']), "Test Update Report")
 
     def test_get_reports(self):
         response = json.load(get_reports(99))
-        self.assertEqual(response, 1) # This will fail.
+        self.assertEqual(len(response), 1) # This will fail.
 
     def test_delete_report(self):
         response = delete_report(99, self.cache_report_id)
@@ -105,6 +106,7 @@ class TestBaseMethods(unittest.TestCase):
     def test_create_rule(self):
         request = Request()
         request.json = {}
+        request.args = {}
         request.args['park'] = 99
 
         request.json['condition_type'] = 'temp'
