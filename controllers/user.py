@@ -239,3 +239,13 @@ class UserHandler:
         if result:
             return True
         return False
+
+    def check_uID(self, uid, token):
+        print("Checking user credentials.")
+        token_query = "SELECT 1 FROM Users WHERE uID = ? AND token = ?"
+        self.cursor.execute(token_query, uid, token)
+        result = self.cursor.fetchone()
+
+        if result:
+            return True
+        return False

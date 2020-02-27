@@ -137,14 +137,20 @@ def change_password_base():
     token = request.args.get('token')
     print(request.__dict__)
 
-    if request.method == 'POST' and uID and token:
-        return change_password(request)
+    if request.method == 'POST':
+        if uID and token:
+            if user_handler.check_uID(uID, token):
+                return change_password(request)
+            else:
+                abort(401, "Invalid token.")
+        else:
+            abort(401, "Missing uid or token")
     else:
-        abort(400, "Account update URI only accepts POST requests.")
+        abort(400, "Password change URI only accepts POST requests.")
 
 def change_password(request):
-    if not request.json:
-        abort(400, "Missing request body")
+    if not request.json or not 'password' in request.json or not 'new_password' in request.json:
+        abort(400, "Error in change password request, missing request body")
     
     new_password_json = user_handler.change_password(request.json['uID'],
         request.json['password'],
@@ -307,7 +313,7 @@ def create_report(request):
         The newly created json report object
     """
     if not request.json or not 'loc_name' in request.json:
-        abort(400, "Error in create rueport request, missing request body")
+        abort(400, "Error in create report request, missing request body")
 
     
     park_id = int(request.args.get('park'))
