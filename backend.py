@@ -144,7 +144,7 @@ def change_password_base():
             else:
                 abort(401, "Invalid token.")
         else:
-            abort(401, "Missing uid or token")
+            abort(401, "Missing uID or token")
     else:
         abort(400, "Password change URI only accepts POST requests.")
 
@@ -170,8 +170,14 @@ def update_user_base():
     token = request.args.get('token')
     print(request.__dict__)
 
-    if request.method == 'POST' and uID and token:
-        return update_user(request)
+    if request.method == 'POST':
+        if uID and token:
+            if user_handler.check_uID(uid, token):
+                return update_user(request)
+            else:
+                abort(401, "Invalid token")
+        else:
+            abort(401, "Missing uID or token")
     else:
         abort(400, "Account update URI only accepts POST requests.")
 
