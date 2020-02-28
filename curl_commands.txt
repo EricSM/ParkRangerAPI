@@ -24,3 +24,8 @@ curl -i "http://127.0.0.1:5000/pw/api/weather?park=0&refresh=1"
 
 # Parking
 curl -i -H "Content-Type: application/json" -X POST -d "{\"lot_name\":\"Test name\",\"lot_lat\":100.0, \"lot_long\":100.0,\"description\":\"A test description\",\"status\":0}" http://localhost:5000/pw/api/parking?park=0
+
+# User
+create user (give a unique email address)
+
+curl -i -H "Content-Type: application/json" -X POST -d "{\"email\":\"test@email.com\",\"password\":\"123\", \"f_name\":\"Test First Name\", \"l_name\":\"Test Last Name\", \"park_id\":0}" http://localhost:5000/pw/api/login/new

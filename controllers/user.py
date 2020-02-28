@@ -91,7 +91,6 @@ class UserHandler:
                                     l_name,
                                     park_id,
                                     token) # Insert new user into database
-            self.cnxn.commit()
             self.cursor.execute("Select @@IDENTITY")
             row = self.cursor.fetchone()
             new_user = User(int(row[0]),
@@ -100,7 +99,8 @@ class UserHandler:
                             l_name,
                             park_id,
                             token)
-
+            self.cnxn.commit()
+        
             return jsonpickle.encode(new_user)
 
     def login(self, email, password):

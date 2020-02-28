@@ -162,12 +162,11 @@ class WeatherHandler:
                             jsonpickle.encode(rule.path),
                             rule.description,
                             rule.active) # Insert it into database
-
-        self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
         rule.rule_id = new_id
-
+        self.cnxn.commit()
+        
         return jsonpickle.encode(rule)
 
     def delete_rule(self, park_id, id):

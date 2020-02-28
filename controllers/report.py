@@ -82,11 +82,11 @@ class ReportHandler:
                                 new_report.date,
                                 new_report.park_id,
                                 str(new_report.approved_status)) # Insert it into database
-        self.cnxn.commit()
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
         new_report.set_id(new_id)
-
+        self.cnxn.commit()
+        
         return jsonpickle.encode(new_report)
 
     def get_report(self, park_id, id):
