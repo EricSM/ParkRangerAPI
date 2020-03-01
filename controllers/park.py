@@ -53,8 +53,8 @@ class ParkHandler():
             for result in results:
                 fetched_park = Park(result.Name,
                                     result.ID,
-                                    None,
-                                    None,
+                                    result.park_lat,
+                                    result.park_lon,
                                     None,
                                     None,
                                     None
@@ -91,8 +91,8 @@ class ParkHandler():
             for result in results:
                 fetched_park = Park(result.Name,
                                     result.ID,
-                                    None,
-                                    None,
+                                    result.park_lat,
+                                    result.park_lon,
                                     None,
                                     None,
                                     None
