@@ -61,7 +61,9 @@ class ParkHandler():
                 )
 
                 parks.append(fetched_park)
-            return parks
+
+                parks_sorted = sorted(parks, key=lambda x: x.park_name)
+            return parks_sorted
 
     def get_parks_json(self):
         return jsonpickle.encode(self.get_parks(), unpicklable=False)
