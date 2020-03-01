@@ -44,20 +44,44 @@ park_handler = ParkHandler()
 
 #region Parks
 
-@app.route('/pw/api/parks', methods=['GET'])
+@app.route('/pw/api/parks', methods=['GET', 'POST', 'DELETE'])
 def get_parks_base():
     log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
     print(log_str)
 
     park_id = request.args.get('park')
-
+    token = request.args.get('token')
 
     if request.method == 'GET':
         if park_id:
             return get_park(int(park_id))
         return get_parks()
+
+    elif request.method == 'POST':
+        if token:
+            if user_handler.check_user(token, 99): # TODO(IAN) Using park 99 as super user.
+                if park_id:
+                    return update_park(park_id, request)  
+                else:
+                    return create_park(request)          
+            else:
+                abort(401, "Invalid token. Parks can only be created by users from park 99.")
+        else:
+            abort(400, "Missing url parameters.")
+
+    elif request.method == 'DELETE':
+        if token:
+            if user_handler.check_user(token, 99):
+                if park_id:
+                    return delete_park(park_id)
+                else:
+                    abort(400, "Missing park_id and report_id.")
+            else:
+                abort(401, "Invalid token.")
+        else:
+            abort(400, "Missing user token.")
     else:
-        abort(400, "We only accept GET")
+        abort(400, "We only accept GET/POST/DELETE")
 
 def get_parks():
     parks_list_json = park_handler.get_parks_json()
@@ -65,6 +89,42 @@ def get_parks():
 
 def get_park(park_id):
     park_json = park_handler.get_park_json(park_id)
+    return park_json
+
+def create_park(request):
+    """
+
+    """
+    if not request.json:
+        abort(400, "Error in create report request, missing request body")
+
+    park_json = park_handler.create_park(request.json['park_name'],
+                     request.json['park_lat'],
+                     request.json['park_lon'],
+                     request.json['park_org'],
+                     request.json['park_cover_image'],
+                     request.json['park_logo'])
+
+    return park_json
+
+def delete_park(park_id):
+    result = park_handler.delete_park(park_id)
+    return app.response_class(json.dumps(result), content_type='application/json')
+
+def update_park(park_id, request):
+    if not request.json:
+        abort(400, "Error in update report request, missing request body")
+
+    park_json = park_handler.update_park(
+                        request.json['park_name'],
+                        park_id,
+                        request.json['park_lat'],
+                        request.json['park_lon'],
+                        request.json['park_org'],
+                        request.json['park_cover_image'],
+                        request.json['park_logo'])
+                        
+    print(park_json, flush=True)
     return park_json
 
 #endregion
@@ -172,7 +232,7 @@ def update_user_base():
 
     if request.method == 'POST':
         if uID and token:
-            if user_handler.check_uID(uid, token):
+            if user_handler.check_uID(uID, token):
                 return update_user(request)
             else:
                 abort(401, "Invalid token")
