@@ -167,26 +167,7 @@ class ParkHandler():
         new_park.park_id = new_id
         self.cnxn.commit()
         
-        # TODO: test image storage
-        # # Save images on server
-        # if new_park.park_cover_image:
-        #     print('Storing park cover image')
-        #     # Generate image file name
-        #     filename = 'parkcovers/coverimage' + str(new_park.park_id) + '.jpeg'
-
-        #     cover = open(filename, 'wb') # Create binary file
-        #     cover.write(new_park.park_cover_image) # Write image to file
-        #     cover.close()
-
-        #     print('Park cover saved')
-
-        # if new_park.park_logo:
-        #     print('Storing park logo image')
-        #     filename = 'parklogos/logoimage' + str(new_park.park_id) + '.jpeg'
-        #     logo = open(filename, 'wb')
-        #     logo.write(new_park.park_logo)
-        #     logo.close()
-        #     print('Park logo saved')
+        # self.save_image_helper(new_park.park_cover_image, new_park.park_logo)
 
         return jsonpickle.encode(new_park, unpicklable=False)
 
@@ -240,26 +221,36 @@ class ParkHandler():
                                 park_id)
         self.cursor.commit()
 
-        # TODO: test image updating
-        # # Update images
-        # if new_park.park_cover_image:
-        #     print('Updating park cover image')
-        #     # Generate image file name
-        #     filename = 'parkcovers/coverimage' + str(new_park.park_id) + '.jpeg'
-
-        #     cover = open(filename, 'wb') # Create binary file
-        #     cover.write(new_park.park_cover_image) # Write image to file
-        #     cover.close()
-
-        #     print('Park cover updated')
-
-        # if new_park.park_logo:
-        #     print('Updating park logo image')
-        #     filename = 'parklogos/logoimage' + str(new_park.park_id) + '.jpeg'
-        #     logo = open(filename, 'wb')
-        #     logo.write(new_park.park_logo)
-        #     logo.close()
-        #     print('Park logo updated')
+        # self.save_image_helper(new_park.park_cover_image, new_park.park_logo)
 
         print('report {} updated'.format(id), flush=True)
         return jsonpickle.encode(new_park, unpicklable=False)
+
+    def save_image_helper(self, park_cover_image, park_logo):
+        # TODO: test image storage
+        # Save images on server
+        if park_cover_image:
+            try:
+                print('Storing park cover image')
+                # Generate image file name
+                filename = 'parkcovers/coverimage' + str(new_park.park_id) + '.jpeg'
+
+                cover = open(filename, 'wb') # Open/create binary file
+                cover.write(park_cover_image) # Write image to file
+            except:
+                print('Error occurred when storing the cover image')
+            finally:
+                cover.close()
+            print('Park cover saved')
+
+        if park_logo:
+            try:
+                print('Storing park logo image')
+                filename = 'parklogos/logoimage' + str(new_park.park_id) + '.jpeg'
+                logo = open(filename, 'wb')
+                logo.write(park_logo)
+            except:
+                print('Error occurred when storing the logo')
+            finally:
+                logo.close()
+            print('Park logo saved')
