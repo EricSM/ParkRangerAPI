@@ -104,20 +104,24 @@ class ParkHandler():
 
                     cover = open(filename, 'rb') # Open binary file
                     cover_binary = cover.read()
-                    cover.close()
                     print('Park cover retrieved')
                 except:
                     print('No park cover image')
+                    cover_binary = None
+                finally:
+                    cover.close()
 
                 try:
                     print('Accessing park logo image')
                     filename = 'parklogos/logoimage' + str(result.park_id) + '.jpeg'
                     logo = open(filename, 'rb')
                     logo_binary = logo.read()
-                    logo.close()
                     print('Park logo retrieved')
                 except:
                     print('No park logo image')
+                    logo_binary = None
+                finally:
+                    logo.close()
 
                 fetched_park = Park(result.Name,
                                     result.ID,
