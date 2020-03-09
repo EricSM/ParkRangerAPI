@@ -208,5 +208,26 @@ class ParkHandler():
                                 park_id)
         self.cursor.commit()
 
+        # TODO: test image updating
+        # Save images on server
+        # if new_park.park_cover_image:
+        #     print('Updating park cover image')
+        #     # Generate image file name
+        #     filename = 'parkcovers/coverimage' + str(new_park.park_id) + '.jpeg'
+
+        #     cover = open(filename, 'wb') # Create binary file
+        #     cover.write(new_park.park_cover_image) # Write image to file
+        #     cover.close()
+
+        #     print('Park cover updated')
+
+        # if new_park.park_logo:
+        #     print('Updating park logo image')
+        #     filename = 'parklogos/logoimage' + str(new_park.park_id) + '.jpeg'
+        #     logo = open(filename, 'wb')
+        #     logo.write(new_park.park_logo)
+        #     logo.close()
+        #     print('Park logo updated')
+
         print('report {} updated'.format(id), flush=True)
         return jsonpickle.encode(new_park, unpicklable=False)
