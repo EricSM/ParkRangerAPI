@@ -106,7 +106,7 @@ class ParkHandler():
         return jsonpickle.encode(self.get_park(park_id), unpicklable=False)
 
     def create_park(self, park_name, park_lat, park_lon, park_org, park_cover_image, park_logo):
-        print("Creating a new report.")
+        print("Creating a new park.")
 
         new_park = Park(park_name, -1, park_lat, park_lon, park_org, park_cover_image, park_logo)
 
@@ -116,7 +116,7 @@ class ParkHandler():
         try:
             return self.create_helper(insert_sql_string, new_park)
         except Exception as e:
-            print('Encountered database error while creating a report.\nRetrying.\n{}'.format(str(e)))
+            print('Encountered database error while creating a park.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
 
             self.cnxn = cnxn
@@ -135,6 +135,27 @@ class ParkHandler():
         new_park.park_id = new_id
         self.cnxn.commit()
         
+        # TODO: test image storage
+        # Save images on server
+        # if new_park.park_cover_image:
+        #     print('Storing park cover image')
+        #     # Generate image file name
+        #     filename = 'parkcovers/coverimage' + str(new_park.park_id) + '.jpeg'
+
+        #     cover = open(filename, 'wb') # Create binary file
+        #     cover.write(new_park.park_cover_image) # Write image to file
+        #     cover.close()
+
+        #     print('Park cover saved')
+
+        # if new_park.park_logo:
+        #     print('Storing park logo image')
+        #     filename = 'parklogos/logoimage' + str(new_park.park_id) + '.jpeg'
+        #     logo = open(filename, 'wb')
+        #     logo.write(new_park.park_logo)
+        #     logo.close()
+        #     print('Park logo saved')
+
         return jsonpickle.encode(new_park, unpicklable=False)
 
     def delete_park(self, park_id):
