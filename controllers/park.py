@@ -91,13 +91,41 @@ class ParkHandler():
         results = self.cursor.fetchall()
         if results:
             for result in results:
+                # TODO: test image retrieval
+                cover_binary = None
+                logo_binary = None
+
+                # Retrieve images on server
+                try:
+                    print('Accessing park cover image')
+
+                    # Image file name of given park
+                    filename = 'parkcovers/coverimage' + str(result.park_id) + '.jpeg'
+
+                    cover = open(filename, 'rb') # Open binary file
+                    cover_binary = cover.read()
+                    cover.close()
+                    print('Park cover retrieved')
+                except:
+                    print('No park cover image')
+
+                try:
+                    print('Accessing park logo image')
+                    filename = 'parklogos/logoimage' + str(result.park_id) + '.jpeg'
+                    logo = open(filename, 'rb')
+                    logo_binary = logo.read()
+                    logo.close()
+                    print('Park logo retrieved')
+                except:
+                    print('No park logo image')
+
                 fetched_park = Park(result.Name,
                                     result.ID,
                                     result.park_lat,
                                     result.park_lon,
                                     None,
-                                    None,
-                                    None
+                                    cover_binary,
+                                    logo_binary
                 )
                 return fetched_park
         return None
@@ -136,7 +164,7 @@ class ParkHandler():
         self.cnxn.commit()
         
         # TODO: test image storage
-        # Save images on server
+        # # Save images on server
         # if new_park.park_cover_image:
         #     print('Storing park cover image')
         #     # Generate image file name
@@ -209,7 +237,7 @@ class ParkHandler():
         self.cursor.commit()
 
         # TODO: test image updating
-        # Save images on server
+        # # Update images
         # if new_park.park_cover_image:
         #     print('Updating park cover image')
         #     # Generate image file name
