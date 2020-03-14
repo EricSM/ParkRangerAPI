@@ -513,28 +513,36 @@ def get_rules_base():
     """
     park_id = request.args.get('park')
     rule_id = request.args.get('id')
-    active = request.args.get('active')
     refresh = request.args.get('refresh')
     token = request.args.get('token')
+
+    condition = request.args.get('condition')
+    interval_value = request.args.get('interval_value')
+    interval_symbol = request.args.get('interval_symbol')
+    activated = request.args.get('active')
+    area_lat = request.args.get('center_lat')
+    area_lon = request.args.get('center_long')
+    area_range = request.args.get('area_range')
+    
     log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
     print(log_str)
 
 
     if request.method == 'GET':
-        if park_id and not rule_id and not active and not refresh: # If only the park was provided then get list of all reports
-            return get_rules(int(park_id))
-        
-        elif park_id and not rule_id and active:
-            return get_active_rules(int(park_id), active)
-
-        elif park_id and rule_id: # If park and report id were provided then return specified report
-            return get_rule(int(park_id), int(rule_id))
-        
-        elif park_id and refresh: # Refresh all rules for the park
-            if active:
-                return refresh_rules(int(park_id), int(active))
-            else:
-                return refresh_rules(int(park_id), None)
+        if park_id and not rule_id:
+            return get_rules_filter(park_id,
+                                    condition,
+                                    interval_value,
+                                    interval_symbol,
+                                    activated,
+                                    area_lat,
+                                    area_lon,
+                                    area_range,
+                                    refresh)
+        elif park_id and rule_id:
+            if refresh:
+                refreshed = refresh_rules(park_id, None)
+            return get_rule(park_id, rule_id)
 
     elif request.method == 'POST':
         if token:
@@ -590,6 +598,19 @@ def get_rules(park_id):
     """
     rules_list_json = weather_handler.get_rules_json(park_id)
     return rules_list_json
+
+def get_rules_filter(park_id, condition, interval_value, interval_symbol, activated, areaLat, areaLon, areaRange, refresh):
+    rules_list_json = weather_handler.get_rules_filter_json(park_id,
+                                                       condition,
+                                                       interval_value,
+                                                       interval_symbol,
+                                                       activated,
+                                                       areaLat,
+                                                       areaLon,
+                                                       areaRange,
+                                                       refresh)
+    return rules_list_json
+
 
 def check_weather_request(request):
     if not request.json:

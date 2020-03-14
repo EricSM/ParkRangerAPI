@@ -3,6 +3,8 @@ import datetime as dt
 import jsonpickle
 import textwrap
 import requests
+from distutils import util
+
 
 app_id = "" # Our unique open weather id
 open_weather_request_url = "https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units={}&appid={}" # The request URL for open weather API
@@ -416,6 +418,47 @@ class WeatherHandler:
                 else:
                     r.active = 0
                 self.update_rule_active(r, r.active)
+
+    def get_rules_filter(self, park_id, condition = None, interval_value = None, interval_symbol = None, activated = None, areaLat = None, areaLon = None, areaRange = None, refresh = None):
+        if refresh:
+            self.refresh_rules(park_id)
+
+        rules = self.get_rules(park_id)
+        if len(rules) == 0:
+            return rules
+
+        rules = sorted(rules, key=lambda x: x.condition_type)
+
+        if condition:
+            rules = [r for r in rules if r.condition_type == condition]
+        if interval_value:
+            rules = [r for r in rules if str(r.condition_interval_value) == interval_value]
+        if interval_symbol:
+            rules = [r for r in rules if r.condition_interval_symbol == interval_symbol]
+        if activated:
+            activated = bool(util.strtobool(activated))
+            rules = [r for r in rules if r.active == activated]
+        if areaLat and areaLon:
+            areaLon = float(areaLon)
+            areaLat = float(areaLat)
+            if not areaRange:
+                rules = [r for r in rules if abs(r.center_long - areaLon) <= 0.1 and abs(r.center_lat - areaLat) <= 0.1] #By default we allow a small amount of error
+            elif areaRange:
+                areaRange = float(areaRange)
+                rules = [r for r in rules if abs(r.center_long - areaLon) <= areaRange and abs(r.center_lat - areaLat) <= areaRange]
+
+        return rules
+
+    def get_rules_filter_json(self, park_id, condition = None, interval_value = None, interval_symbol = None, activated = None, areaLat = None, areaLon = None, areaRange = None, refresh = None):
+        return jsonpickle.encode(self.get_rules_filter(park_id,
+                                                       condition,
+                                                       interval_value,
+                                                       interval_symbol,
+                                                       activated,
+                                                       areaLat,
+                                                       areaLon,
+                                                       areaRange,
+                                                       refresh), unpicklable=False)
 
 class Rule:
     """
