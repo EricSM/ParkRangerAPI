@@ -713,7 +713,7 @@ def get_parking_base():
     park_id = request.args.get('park')
     lot_id = request.args.get('id')
     token = request.args.get('token')
-    status = request.args.get('status')
+    status = request.args.get('severity')
     log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
     print(log_str)
 
