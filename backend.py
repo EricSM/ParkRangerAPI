@@ -95,8 +95,7 @@ def create_park(request):
     """
 
     """
-    if not request.json:
-        abort(400, "Error in create report request, missing request body")
+    check_json_park(request)
 
     park_json = park_handler.create_park(request.json['park_name'],
                      request.json['park_lat'],
@@ -107,13 +106,46 @@ def create_park(request):
 
     return park_json
 
+def check_json_park(request):
+    if not request.json:
+        abort(400, "Error in create report request, missing request body")
+
+    if 'park_name' not in request.json:
+        abort(400, "Missing park name in request body")
+
+    elif len(request.json['park_name']) <= 0:
+        abort(400, "Park name must not be an empty string")
+
+    if 'park_lat' not in request.json:
+        abort(400, "Missing park lat in request body")
+    
+    if 'park_lon' not in request.json:
+        abort(400, "Missing park lon in request body")
+
+    if 'park_org' not in request.json:
+        abort(400, "Missing park org in request body")
+    
+    elif len(request.json['park_org']) <= 0:
+        abort(400, "Park org must not be an empty string")
+
+    if 'park_cover_image' not in request.json:
+        abort(400, "Missing park cover image in request body")
+    
+    elif len(request.json['park_cover_image']) <= 0:
+        abort(400, "Park cover image must not be an empty string")
+
+    if 'park_logo' not in request.json:
+        abort(400, "Missing park logo in request body")
+    
+    elif len(request.json['park_logo']) <= 0:
+        abort(400, "Park logo must not be an empty string")
+
 def delete_park(park_id):
     result = park_handler.delete_park(park_id)
     return app.response_class(json.dumps(result), content_type='application/json')
 
 def update_park(park_id, request):
-    if not request.json:
-        abort(400, "Error in update report request, missing request body")
+    check_json_park(request)
 
     park_json = park_handler.update_park(
                         request.json['park_name'],
@@ -151,11 +183,16 @@ def login_base():
 
 
 def login(request):
-    if not request.json:
-        abort(400, "Missing request body")
+    if 'email' not in request.json:
+        abort(400, "Missing email in request body")
+    if 'password' not in request.json:
+        abort(400, "Missing password in request body")
+    if 'park_id' not in request.json:
+        abort(400, "Missing park_id in request body")
     
     login_json = user_handler.login(request.json['email'],
-                                    request.json['password'])
+                                    request.json['password'],
+                                    request.json['park_id'])
 
     return login_json
 
@@ -173,8 +210,16 @@ def new_login_base():
 
 
 def create_user(request):
-    if not request.json:
-        abort(400, "Missing request body")
+    if 'email' not in request.json:
+        abort(400, "Missing email in request body")
+    if 'password' not in request.json:
+        abort(400, "Missing password in request body")
+    if 'park_id' not in request.json:
+        abort(400, "Missing park_id in request body")
+    if 'f_name' not in request.json:
+        abort(400, "Missing f_name in request body")
+    if 'l_name' not in request.json:
+        abort(400, "Missing l_name in request body")
     
     new_user_json = user_handler.create_user(request.json['email'],
                                              request.json['password'],
@@ -242,8 +287,18 @@ def update_user_base():
         abort(400, "Account update URI only accepts POST requests.")
 
 def update_user(request):
-    if not request.json:
-        abort(400, "Missing request body")
+    if 'uID' not in request.json:
+        abort(400, "Missing uID in request body")
+    if 'email' not in request.json:
+        abort(400, "Missing email in request body")
+    if 'token' not in request.json:
+        abort(400, "Missing token in request body")
+    if 'park_id' not in request.json:
+        abort(400, "Missing park_id in request body")
+    if 'f_name' not in request.json:
+        abort(400, "Missing f_name in request body")
+    if 'l_name' not in request.json:
+        abort(400, "Missing l_name in request body")
     
     updated_user_json = user_handler.update_user(request.json['uID'],
                                              request.json['email'],
@@ -369,6 +424,22 @@ def get_report(park_id, report_id):
     report_json = report_handler.get_report_json(park_id, report_id)
     return report_json
 
+def check_report_request(request):
+    if not request.json:
+        abort(400, "Missing request body")
+    if 'loc_name' not in request.json:
+        abort(400, "Missing loc name in request body")
+    if 'loc_lat' not in request.json:
+        abort(400, "Missing loc lat in request body")
+    if 'loc_long' not in request.json:
+        abort(400, "Missing loc long in request body")
+    if 'description' not in request.json:
+        abort(400, "Missing description in request body")
+    if 'severity' not in request.json:
+        abort(400, "Missing severity in request body")
+    if 'closure' not in request.json:
+        abort(400, "Missing closure in request body")
+
 def create_report(request):
     """
     Calls report handler to create a new report object, puts it into the db, and returns it
@@ -378,10 +449,8 @@ def create_report(request):
     Returns:
         The newly created json report object
     """
-    if not request.json or not 'loc_name' in request.json:
-        abort(400, "Error in create report request, missing request body")
+    check_report_request(request)
 
-    
     park_id = int(request.args.get('park'))
 
     report_json = report_handler.create_report(request.json['loc_name'],
@@ -404,8 +473,11 @@ def update_report(park_id, report_id, request):
     Returns:
         The newly created json report object
     """
-    if not request.json or not 'loc_name' in request.json:
-        abort(400, "Error in update report request, missing request body")
+    check_report_request(request)
+
+    if 'approved_status' not in request.json:
+        abort(400, "Missing approved status in request body")
+
 
     report_json = report_handler.update_report(
                         park_id,
@@ -519,11 +591,23 @@ def get_rules(park_id):
     rules_list_json = weather_handler.get_rules_json(park_id)
     return rules_list_json
 
-def create_rule(request):
+def check_weather_request(request):
     if not request.json:
-        abort(400, "Error in create rule request, missing request body")
+        abort(400, "Missing request body")
+    if 'condition_type' not in request.json:
+        abort(400, "Missing condition_type in request body")
+    if 'condition_interval_value' not in request.json:
+        abort(400, "Missing condition_interval_value in request body")
+    if 'name' not in request.json:
+        abort(400, "Missing name in request body")
+    if 'description' not in request.json:
+        abort(400, "Missing description in request body")
+    if 'path' not in request.json:
+        abort(400, "Missing path in request body")
 
-    
+def create_rule(request):
+    check_weather_request(request)
+
     park_id = int(request.args.get('park'))
 
     print(request)
@@ -546,9 +630,7 @@ def create_rule(request):
     return report_json
 
 def update_rule(park_id, rule_id, request):
-    if not request.json:
-        abort(400, "Error in update rule request, missing request body")
-
+    check_weather_request(request)
    
     # Example post json
 
@@ -672,9 +754,22 @@ def get_parking_lot(park_id, lot_id):
     parking_lot_json = parking_handler.get_parking_lot_json(park_id, lot_id)
     return parking_lot_json
 
-def create_parking_lot(request):
+def check_parking_request(request):
     if not request.json:
-        abort(400, "Error in parking request, missing request body.")
+        abort(400, "Missing request body")
+    if 'lot_lat' not in request.json:
+        abort(400, "Missing lot_lat in request body")
+    if 'lot_long' not in request.json:
+        abort(400, "Missing lot_long in request body")
+    if 'lot_name' not in request.json:
+        abort(400, "Missing lot_name in request body")
+    if 'description' not in request.json:
+        abort(400, "Missing description in request body")
+    if 'severity' not in request.json:
+        abort(400, "Missing severity in request body")
+
+def create_parking_lot(request):
+    check_parking_request(request)
     
     park_id = int(request.args.get('park'))
 
@@ -689,8 +784,8 @@ def create_parking_lot(request):
     return lot_json
 
 def update_parking_lot(park_id, lot_id, request):
-    if not request.json:
-        abort(400, "Error in update parking request, missing request body")
+    check_parking_request(request)
+
     
     lot_json = parking_handler.update_parking_lot(lot_id,
                      request.json['lot_name'],
