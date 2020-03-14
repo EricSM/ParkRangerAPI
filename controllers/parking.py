@@ -116,7 +116,7 @@ class ParkingHandler:
 
         return jsonpickle.encode(new_parking_lot)
 
-    def get_parking_lots(self, park_id):
+    def get_parking_lots(self, park_id, status):
         """
         Returns the parking_lots associated with the given park id
 
@@ -131,6 +131,29 @@ class ParkingHandler:
             Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
             From ParkingLots 
             Where park_id = ?""")
+
+        if status:
+            filters = status.split(',')
+
+            if len(filters) == 1:
+                selection_string = textwrap.dedent(""" 
+            Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
+            From ParkingLots 
+            Where park_id = ? AND severity = """) + filters[0]  
+
+            elif len(filters) == 2:
+                selection_string = textwrap.dedent(""" 
+            Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
+            From ParkingLots 
+            Where park_id = ? AND severity = """) + filters[0] + "OR severity = " + filters[1]  
+
+            elif len(filters) == 3:
+                selection_string = textwrap.dedent(""" 
+            Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
+            From ParkingLots 
+            Where park_id = ? AND severity = """) + filters[0] + "OR severity = " + filters[1] + "OR severity = " + filters[2] 
+
+        
         
         try:
             return self.get_list_helper(selection_string, park_id)
@@ -159,9 +182,10 @@ class ParkingHandler:
                 fetched_lot.id = result.lot_id
                 lots.append(fetched_lot)
             return lots
+        return lots
     
-    def get_parking_lots_list_json(self, park_id):
-        return jsonpickle.encode(self.get_parking_lots(park_id))
+    def get_parking_lots_list_json(self, park_id, status):
+        return jsonpickle.encode(self.get_parking_lots(park_id, status), unpicklable=False)
 
     def get_parking_lot(self, park_id, lot_id):
         """

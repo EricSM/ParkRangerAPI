@@ -713,13 +713,14 @@ def get_parking_base():
     park_id = request.args.get('park')
     lot_id = request.args.get('id')
     token = request.args.get('token')
+    status = request.args.get('status')
     log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
     print(log_str)
 
 
     if request.method == 'GET':
         if park_id and not lot_id: # If only the park was provided then get list of all reports
-            return get_parking_lots(int(park_id))
+            return get_parking_lots(int(park_id), status)
         
         elif park_id and lot_id: # If park and report id were provided then return specified report
             return get_parking_lot(int(park_id), int(lot_id))
@@ -750,7 +751,7 @@ def get_parking_base():
     else:
         abort(400)
 
-def get_parking_lots(park_id):
+def get_parking_lots(park_id, status):
     """
     Helper function that gets all parking lots associated with the park
 
@@ -759,7 +760,7 @@ def get_parking_lots(park_id):
     Returns:
         A list of json report objects
     """
-    parking_lots_list_json = parking_handler.get_parking_lots_list_json(park_id)
+    parking_lots_list_json = parking_handler.get_parking_lots_list_json(park_id, status)
     return parking_lots_list_json
 
 def get_parking_lot(park_id, lot_id):
