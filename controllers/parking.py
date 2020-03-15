@@ -145,13 +145,13 @@ class ParkingHandler:
                 selection_string = textwrap.dedent(""" 
             Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
             From ParkingLots 
-            Where park_id = ? AND severity = """) + filters[0] + "OR severity = " + filters[1]  
+            Where park_id = ? AND (severity = """) + filters[0] + " OR severity = " + filters[1]  + ")"
 
             elif len(filters) == 3:
                 selection_string = textwrap.dedent(""" 
             Select lot_id, park_id, loc_lat, loc_long, severity, loc_name, lot_description 
             From ParkingLots 
-            Where park_id = ? AND severity = """) + filters[0] + "OR severity = " + filters[1] + "OR severity = " + filters[2] 
+            Where park_id = ? AND (severity = """) + filters[0] + " OR severity = " + filters[1] + " OR severity = " + filters[2] + ")"
 
         
         
