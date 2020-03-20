@@ -453,6 +453,16 @@ def create_report(request):
 
     park_id = int(request.args.get('park'))
 
+    # report_json = report_handler.create_report(request.json['loc_name'],
+    #                  park_id,
+    #                  request.json['loc_lat'],
+    #                  request.json['loc_long'],
+    #                  request.json['description'],
+    #                  request.json['severity'],
+    #                  request.json['closure'],
+    #                  0,
+    #                  request.json['photo'])
+
     report_json = report_handler.create_report(request.json['loc_name'],
                      park_id,
                      request.json['loc_lat'],
@@ -478,6 +488,17 @@ def update_report(park_id, report_id, request):
     if 'approved_status' not in request.json:
         abort(400, "Missing approved status in request body")
 
+    # report_json = report_handler.update_report(
+    #                     park_id,
+    #                     report_id,
+    #                     request.json['loc_name'],
+    #                     request.json['loc_lat'],
+    #                     request.json['loc_long'],
+    #                     request.json['description'],
+    #                     request.json['severity'],
+    #                     request.json['closure'],
+    #                     request.json['approved_status'],
+    #                     request.json['photo'])
 
     report_json = report_handler.update_report(
                         park_id,
