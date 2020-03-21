@@ -5,6 +5,7 @@ import textwrap
 from distutils import util
 
 class Report:
+    # def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
     def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
         self.id = 0 # Int
         self.park_id = park_id
@@ -16,6 +17,7 @@ class Report:
         self.closure = closure # Bit
         self.date = dt.datetime.now()# .strftime("%m/%d/%Y, %H:%M:%S") # String
         self.approved_status = approved_status # Bit
+        # self.photo = photo # bytes
 
     def set_id(self, id):
         self.id = id
@@ -37,7 +39,7 @@ class ReportHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-    #def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
+    # def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
     def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
@@ -55,6 +57,7 @@ class ReportHandler:
         print("Creating a new report.")
 
         new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
+        # new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo) # Create a new report
 
         insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?)"
         
@@ -88,6 +91,8 @@ class ReportHandler:
         new_report.set_id(new_id)
         self.cnxn.commit()
         
+        # self.save_photo_helper(new_id, new_report.photo)
+
         return jsonpickle.encode(new_report)
 
     def get_report(self, park_id, id):
