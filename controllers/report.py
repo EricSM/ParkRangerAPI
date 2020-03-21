@@ -37,6 +37,7 @@ class ReportHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
+    #def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
     def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
@@ -329,5 +330,20 @@ class ReportHandler:
                                       maxDate
                                     ))
 
+def save_photo_helper(self, report_id, report_photo):
+        # TODO: test image storage
+        # Save image on server
+        if report_photo:
+            try:
+                print('Storing park report photo')
+                # Generate image file name
+                filename = 'reportphotos/report' + str(report_id) + '.jpeg'
 
+                cover = open(filename, 'wb') # Open/create binary file
+                cover.write(report_photo) # Write image to file
+            except:
+                print('Error occurred when storing the report photo')
+            finally:
+                cover.close()
+            print('Report photo saved')
 
