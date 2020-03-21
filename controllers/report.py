@@ -210,6 +210,7 @@ class ReportHandler:
 
         return reports
                 
+    # def update_report(self, park_id, rule_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status, photo):
     def update_report(self, park_id, rule_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
         """
         Updates the report associated with the given ID with the given arguments, then returns the report.
@@ -230,6 +231,7 @@ class ReportHandler:
         print("Update a report.")
         
         updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Update the old report
+        # updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo) # Update the old report
 
         update_string = textwrap.dedent("""
             update Reports 
@@ -267,6 +269,8 @@ class ReportHandler:
                             str(report.approved_status),
                             report_id)
         self.cursor.commit()
+
+        # self.save_photo_helper(report_id, report.photo)
 
         print('report {} updated'.format(id), flush=True)
         return jsonpickle.encode(report)
@@ -330,7 +334,7 @@ class ReportHandler:
                                       maxDate
                                     ))
 
-def save_photo_helper(self, report_id, report_photo):
+    def save_photo_helper(self, report_id, report_photo):
         # TODO: test image storage
         # Save image on server
         if report_photo:
