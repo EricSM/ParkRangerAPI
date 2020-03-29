@@ -249,3 +249,22 @@ class UserHandler:
         if result:
             return True
         return False
+
+    def get_all_users(self):
+        selection_string = "SELECT * From Users"
+        self.cursor.execute(selection_string)
+        results = self.cursor.fetchall()
+        users = []
+
+        if results:
+            for result in results:
+                user = User(result.uID,
+                                    result.email,
+                                    result.f_name,
+                                    result.l_name,
+                                    result.park_id,
+                                    None)
+                users.append(user)
+            return users
+        return users
+        

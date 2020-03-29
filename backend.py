@@ -17,7 +17,11 @@
 import jsonpickle
 import logging
 import re
+import time
+import atexit
 
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, jsonify, render_template, make_response, request, render_template, abort, json
 from flask_cors import CORS
 from controllers.report import Report, ReportHandler
@@ -26,6 +30,7 @@ from controllers.parking import ParkingLot, ParkingHandler
 from controllers.user import UserHandler
 from controllers.fire import Fire, WildFireHandler
 from controllers.park import Park, ParkHandler
+from controllers.email import EmailHandler
 
 app = Flask(__name__, template_folder="templates")
 logging.basicConfig(level=logging.DEBUG)
@@ -37,7 +42,15 @@ parking_handler = ParkingHandler()
 user_handler = UserHandler()
 fire_handler = WildFireHandler()
 park_handler = ParkHandler()
+email_handler = EmailHandler()
 
+# Email scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=email_handler.send_all_emails, trigger="interval", hours=12)
+scheduler.start()
+
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
 
 ################################################################
 #                            Parks                             #
