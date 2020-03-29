@@ -16,6 +16,7 @@
 
 import jsonpickle
 import logging
+import re
 
 from flask import Flask, jsonify, render_template, make_response, request, render_template, abort, json
 from flask_cors import CORS
@@ -208,6 +209,18 @@ def new_login_base():
     else:
         abort(400, "Login URI only accepts POST requests.")
 
+def check_user_body(request):
+    regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+
+    if not re.search(regex, request.json['email']):
+        abort(400, "Invalid email")
+    if len(request.json['password']) < 8:
+        abort(400, "Password must be at least 8 characters")
+    if len(request.json['f_name']) == 0:
+        abort(400, "First name cannot be empty")
+    if len(request.json['l_name']) == 0:
+        abort(400, "Last name cannot be empty")
+    
 
 def create_user(request):
     if 'email' not in request.json:
@@ -220,6 +233,8 @@ def create_user(request):
         abort(400, "Missing f_name in request body")
     if 'l_name' not in request.json:
         abort(400, "Missing l_name in request body")
+
+    check_user_body(request)
     
     new_user_json = user_handler.create_user(request.json['email'],
                                              request.json['password'],
@@ -228,7 +243,7 @@ def create_user(request):
                                              request.json['park_id'])
     # Just making sure that we return the correct error codes.
     if new_user_json == -1:
-        abort(401, "Invalid username or password")
+        abort(401, "A user with this email already exists")
     else:
         return new_user_json
 #endregion

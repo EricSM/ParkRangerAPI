@@ -80,7 +80,7 @@ class UserHandler:
                             row.park_id,
                             row.token)
 
-            return jsonpickle.encode(new_user)
+            return -1
 
         else:
             self.cursor.execute(query, 
