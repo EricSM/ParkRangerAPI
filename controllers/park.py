@@ -161,7 +161,7 @@ class ParkHandler():
         new_park.park_id = new_id
         self.cnxn.commit()
         
-        # self.save_image_helper(new_id, new_park.park_cover_image, new_park.park_logo)
+        self.save_image_helper(new_id, new_park.park_cover_image, new_park.park_logo)
 
         return jsonpickle.encode(new_park, unpicklable=False)
 
@@ -215,7 +215,7 @@ class ParkHandler():
                                 park_id)
         self.cursor.commit()
 
-        # self.save_image_helper(park_id, new_park.park_cover_image, new_park.park_logo)
+        self.save_image_helper(park_id, new_park.park_cover_image, new_park.park_logo)
 
         print('report {} updated\n\n'.format(id), flush=True)
         return jsonpickle.encode(new_park, unpicklable=False)
