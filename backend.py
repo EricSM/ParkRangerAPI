@@ -373,7 +373,7 @@ def get_report_base():
     max_date = request.args.get('maxDate')
 
     token = request.args.get('token')
-    log_str = "{}\n{}\n{}".format(str(request.method), str(request.args), str(request.json))
+    log_str = "{}\n{}\n{}\n".format(str(request.method), str(request.args), '%.500s' % str(request.json))
     print(log_str)
 
 
@@ -467,6 +467,8 @@ def check_report_request(request):
         abort(400, "Missing severity in request body")
     if 'closure' not in request.json:
         abort(400, "Missing closure in request body")
+    if 'photo' not in request.json:
+        abort(400, "Missing photo in request body")
 
 def create_report(request):
     """
@@ -481,16 +483,6 @@ def create_report(request):
 
     park_id = int(request.args.get('park'))
 
-    # report_json = report_handler.create_report(request.json['loc_name'],
-    #                  park_id,
-    #                  request.json['loc_lat'],
-    #                  request.json['loc_long'],
-    #                  request.json['description'],
-    #                  request.json['severity'],
-    #                  request.json['closure'],
-    #                  0,
-    #                  request.json['photo'])
-
     report_json = report_handler.create_report(request.json['loc_name'],
                      park_id,
                      request.json['loc_lat'],
@@ -498,7 +490,8 @@ def create_report(request):
                      request.json['description'],
                      request.json['severity'],
                      request.json['closure'],
-                     0)
+                     0,
+                     request.json['photo'])
 
     return report_json
 
@@ -516,18 +509,6 @@ def update_report(park_id, report_id, request):
     if 'approved_status' not in request.json:
         abort(400, "Missing approved status in request body")
 
-    # report_json = report_handler.update_report(
-    #                     park_id,
-    #                     report_id,
-    #                     request.json['loc_name'],
-    #                     request.json['loc_lat'],
-    #                     request.json['loc_long'],
-    #                     request.json['description'],
-    #                     request.json['severity'],
-    #                     request.json['closure'],
-    #                     request.json['approved_status'],
-    #                     request.json['photo'])
-
     report_json = report_handler.update_report(
                         park_id,
                         report_id,
@@ -537,9 +518,10 @@ def update_report(park_id, report_id, request):
                         request.json['description'],
                         request.json['severity'],
                         request.json['closure'],
-                        request.json['approved_status'])
+                        request.json['approved_status'],
+                        request.json['photo'])
 
-    print(report_json, flush=True)
+    # print(report_json, flush=True)
     return report_json
 #endregion
 
