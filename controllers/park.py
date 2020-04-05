@@ -92,44 +92,38 @@ class ParkHandler():
         if results:
             for result in results:
                 # TODO: test image retrieval
-                cover_binary = None
-                logo_binary = None
+                cover = ''
+                logo = ''
 
                 # Retrieve images on server
                 try:
                     print('Accessing park cover image')
 
                     # Image file name of given park
-                    filename = 'parkcovers/coverimage' + str(result.park_id) + '.jpeg'
+                    filename = 'parkcovers/coverimage' + str(result.park_id) + '.txt'
 
-                    cover = open(filename, 'rb') # Open binary file
-                    cover_binary = cover.read()
-                    print('Park cover retrieved')
+                    with open(filename, 'r') as cover: # Open file
+                        cover = cover.read()
+                        print('Park cover retrieved')
                 except:
                     print('No park cover image')
-                    cover_binary = None
-                finally:
-                    cover.close()
 
                 try:
                     print('Accessing park logo image')
                     filename = 'parklogos/logoimage' + str(result.park_id) + '.jpeg'
-                    logo = open(filename, 'rb')
-                    logo_binary = logo.read()
-                    print('Park logo retrieved')
+                    with open(filename, 'r') as logo:
+                        logo = logo.read()
+                        print('Park logo retrieved')
                 except:
                     print('No park logo image')
-                    logo_binary = None
-                finally:
-                    logo.close()
 
                 fetched_park = Park(result.Name,
                                     result.ID,
                                     result.park_lat,
                                     result.park_lon,
                                     None,
-                                    cover_binary,
-                                    logo_binary
+                                    cover,
+                                    logo
                 )
                 return fetched_park
         return None
@@ -223,34 +217,32 @@ class ParkHandler():
 
         # self.save_image_helper(park_id, new_park.park_cover_image, new_park.park_logo)
 
-        print('report {} updated'.format(id), flush=True)
+        print('report {} updated\n\n'.format(id), flush=True)
         return jsonpickle.encode(new_park, unpicklable=False)
 
-    def save_image_helper(self, park_id, park_cover_image, park_logo):
+    def save_image_helper(self, park_id, park_cover, park_logo):
         # TODO: test image storage
         # Save images on server
-        if park_cover_image:
-            try:
-                print('Storing park cover image')
-                # Generate image file name
-                filename = 'parkcovers/coverimage' + str(park_id) + '.jpeg'
+        # remove "data:application/octet-stream;base64," from start of files
+        if len(park_cover) > 37:
+            park_cover = park_cover[37:]
+        if len(park_logo) > 37:
+            park_logo = park_logo[37:]
 
-                cover = open(filename, 'wb') # Open/create binary file
-                cover.write(park_cover_image) # Write image to file
-            except:
-                print('Error occurred when storing the cover image')
-            finally:
-                cover.close()
-            print('Park cover saved')
+        print('Storing park cover image')
+        filename = 'parkcovers/coverimage' + str(park_id) + '.txt'
+        try:
+            with open(filename, 'w') as cover: # Open/create binary file
+                cover.write(park_cover) # Write image to file
+                print('Park cover saved')
+        except:
+            print('Error occurred when storing the cover image')
 
-        if park_logo:
-            try:
-                print('Storing park logo image')
-                filename = 'parklogos/logoimage' + str(park_id) + '.jpeg'
-                logo = open(filename, 'wb')
+        print('Storing park logo image')
+        filename = 'parklogos/logoimage' + str(park_id) + '.txt'
+        try:
+            with open(filename, 'w') as logo:
                 logo.write(park_logo)
-            except:
-                print('Error occurred when storing the logo')
-            finally:
-                logo.close()
-            print('Park logo saved')
+                print('Park logo saved')
+        except:
+            print('Error occurred when storing the logo')

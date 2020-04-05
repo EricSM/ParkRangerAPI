@@ -5,8 +5,7 @@ import textwrap
 from distutils import util
 
 class Report:
-    # def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
-    def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
+    def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
         self.id = 0 # Int
         self.park_id = park_id
         self.loc_name = loc_name # String
@@ -17,7 +16,7 @@ class Report:
         self.closure = closure # Bit
         self.date = dt.datetime.now()# .strftime("%m/%d/%Y, %H:%M:%S") # String
         self.approved_status = approved_status # Bit
-        # self.photo = photo # bytes
+        self.photo = photo # bytes
 
     def set_id(self, id):
         self.id = id
@@ -39,8 +38,7 @@ class ReportHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-    # def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
-    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status):
+    def create_report(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo = ''):
         """
         Creates a new report object, adds it to the database, then updates and returns the new report's ID
 
@@ -51,13 +49,13 @@ class ReportHandler:
             description: A short description of the issue (str)
             severity: The severity of the issue from 1-10 (int)
             closure: 0 for not closed, 1 for closed (bit)
+            photo: base64 encoded photo (string)
         Returns:
             Returns the id of the newly created report
         """
         print("Creating a new report.")
-
-        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Create a new report
-        # new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo) # Create a new report
+        
+        new_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo) # Create a new report
 
         insert_sql_string = "Insert Into Reports(loc_name, loc_lat, loc_long, description, severity, closure, date, park_id, approved_status) Values (?,?,?,?,?,?,?,?,?)"
         
@@ -91,8 +89,9 @@ class ReportHandler:
         new_report.set_id(new_id)
         self.cnxn.commit()
         
-        # self.save_photo_helper(new_id, new_report.photo)
-
+        self.save_photo_helper(new_id, new_report.photo)
+        
+        print('Report {} created\n\n'.format(new_id), flush=True)
         return jsonpickle.encode(new_report)
 
     def get_report(self, park_id, id):
@@ -128,6 +127,17 @@ class ReportHandler:
         result = self.cursor.fetchone()
         print(result)
         if result:
+            print('Accessing report photo')
+            
+            photo = ''         
+            filename = 'reportphotos/report' + str(report_id) + '.txt'
+            try:
+                with open(filename, 'r') as photo_file: # Open base64 text file
+                    photo = photo_file.read()
+                    print('Photo retrieved')
+            except:
+                print('Error: Report photo does not exist')
+
             fetched_report = Report(result.loc_name,
                                     result.park_id,
                                     result.loc_lat,
@@ -135,8 +145,10 @@ class ReportHandler:
                                     result.description,
                                     result.severity,
                                     result.closure,
-                                    result.approved_status)
+                                    result.approved_status,
+                                    photo)
             
+            print('Returning report {}\n\n'.format(report_id), flush=True)
             return fetched_report
 
     def get_reports(self, park_id):
@@ -180,7 +192,8 @@ class ReportHandler:
                                         result.description,
                                         result.severity,
                                         result.closure,
-                                        result.approved_status)
+                                        result.approved_status,
+                                        '')
                 fetched_report.set_id(result.id)
                 reports.append(fetched_report)
             return reports
@@ -215,8 +228,7 @@ class ReportHandler:
 
         return reports
                 
-    # def update_report(self, park_id, rule_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status, photo):
-    def update_report(self, park_id, rule_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status):
+    def update_report(self, park_id, report_id, loc_name, loc_lat, loc_long, description, severity, closure, approved_status, photo = ''):
         """
         Updates the report associated with the given ID with the given arguments, then returns the report.
 
@@ -230,13 +242,13 @@ class ReportHandler:
             severity: The severity of the issue from 1-10 (int)
             closure: 0 for not closed, 1 for closed (bit)
             approved_status: 0 for not approved, 1 for approved (bit)
+            photo: base64 encoded photo (string)
         Returns:
             The updated report
         """
-        print("Update a report.")
+        print("Updating a report.")
         
-        updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status) # Update the old report
-        # updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo) # Update the old report
+        updated_report = Report(loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo) # Update the old report
 
         update_string = textwrap.dedent("""
             update Reports 
@@ -251,7 +263,7 @@ class ReportHandler:
         """)
         
         try:
-            return self.update_helper(update_string, rule_id, updated_report)
+            return self.update_helper(update_string, report_id, updated_report)
         except Exception as e:
             print('Encountered database error while updating a report.\nRetrying.\n{}'.format(str(e)))
             cnxn = pyodbc.connect(driver)
@@ -259,7 +271,7 @@ class ReportHandler:
             self.cnxn = cnxn
             self.cursor = cnxn.cursor()
 
-            return self.update_helper(update_string, rule_id, updated_report)
+            return self.update_helper(update_string, report_id, updated_report)
         return None
 
 
@@ -275,9 +287,9 @@ class ReportHandler:
                             report_id)
         self.cursor.commit()
 
-        # self.save_photo_helper(report_id, report.photo)
+        self.save_photo_helper(report_id, report.photo)
 
-        print('report {} updated'.format(id), flush=True)
+        print('Report {} updated\n\n'.format(report_id), flush=True)
         return jsonpickle.encode(report)
 
     def delete_report(self, park_id, id):
@@ -308,7 +320,7 @@ class ReportHandler:
     def delete_helper(self, query, park_id, id):
         self.cursor.execute(query, park_id, id)
         self.cursor.commit()
-        print('report {0} deleted from park {1}'.format(id, park_id))
+        print('report {0} deleted from park {1}\n\n'.format(id, park_id))
         return True
 
     def get_report_json(self, park_id, id):
@@ -340,19 +352,16 @@ class ReportHandler:
                                     ))
 
     def save_photo_helper(self, report_id, report_photo):
-        # TODO: test image storage
-        # Save image on server
-        if report_photo:
-            try:
-                print('Storing park report photo')
-                # Generate image file name
-                filename = 'reportphotos/report' + str(report_id) + '.jpeg'
+        # remove "data:application/octet-stream;base64," from start of file
+        if len(report_photo) > 37:
+            report_photo = report_photo[37:]
 
-                cover = open(filename, 'wb') # Open/create binary file
-                cover.write(report_photo) # Write image to file
-            except:
-                print('Error occurred when storing the report photo')
-            finally:
-                cover.close()
-            print('Report photo saved')
+        print('Storing park report photo')
+        filename = 'reportphotos/report' + str(report_id) + '.txt'
+        try:
+            with open(filename, 'w') as photo: # Open/create base64 text file
+                photo.write(report_photo) # Write image to file
+                print('Report photo saved')
+        except:
+            print('Error occurred when storing the report photo')
 
