@@ -177,6 +177,8 @@ class ReportHandler:
         reports = []
         if results:
             for result in results:
+                photo = self.get_photo_helper(result.id)
+
                 fetched_report = Report(result.loc_name,
                                         result.park_id,
                                         result.loc_lat,
@@ -185,7 +187,7 @@ class ReportHandler:
                                         result.severity,
                                         result.closure,
                                         result.approved_status,
-                                        '')
+                                        photo)
                 fetched_report.set_id(result.id)
                 reports.append(fetched_report)
             return reports
