@@ -127,16 +127,7 @@ class ReportHandler:
         result = self.cursor.fetchone()
         print(result)
         if result:
-            print('Accessing report photo')
-            
-            photo = ''         
-            filename = 'reportphotos/report' + str(report_id) + '.txt'
-            try:
-                with open(filename, 'r') as photo_file: # Open base64 text file
-                    photo = photo_file.read()
-                    print('Photo retrieved')
-            except:
-                print('Error: Report photo does not exist')
+            photo = self.get_photo_helper(report_id)
 
             fetched_report = Report(result.loc_name,
                                     result.park_id,
@@ -147,6 +138,7 @@ class ReportHandler:
                                     result.closure,
                                     result.approved_status,
                                     photo)
+            fetched_report.set_id(report_id)
             
             print('Returning report {}\n\n'.format(report_id), flush=True)
             return fetched_report
@@ -350,6 +342,19 @@ class ReportHandler:
                                       minDate,
                                       maxDate
                                     ))
+
+    def get_photo_helper(self, report_id):
+        print('Accessing report photo')
+
+        photo = ''         
+        filename = 'reportphotos/report' + str(report_id) + '.txt'
+        try:
+            with open(filename, 'r') as photo_file: # Open base64 text file
+                photo = photo_file.read()
+                print('Photo retrieved')
+        except:
+            print('Error: Report photo does not exist')
+        return photo
 
     def save_photo_helper(self, report_id, report_photo):
         # remove "data:application/octet-stream;base64," from start of file
