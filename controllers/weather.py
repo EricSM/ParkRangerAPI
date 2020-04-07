@@ -8,7 +8,7 @@ from distutils import util
 
 app_id = "" # Our unique open weather id
 open_weather_request_url = "https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units={}&appid={}" # The request URL for open weather API
-
+open_weather_forecast_request_url = "https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&units={}&appid={}"
 with open("controllers/app_id.txt", 'r') as f:
     app_id = f.readline().strip()
 
@@ -44,7 +44,7 @@ class WeatherHandler:
         self.cnxn = cnxn
         self.cursor = cnxn.cursor()
 
-    def add_rule(self, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):
+    def add_rule(self, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path, forecast):
         print("Creating new weather rule.")
         """
         Creates a new rule and adds it to the rules list
@@ -57,13 +57,13 @@ class WeatherHandler:
                 Ex: leq = less than or equal to
             description: The description returned when this rule is broken
         """
-        new_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
+        new_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path, forecast)
         insert_sql_string = textwrap.dedent("""
             Insert Into WeatherRules(park_id, area_name, condition, 
                 area_lat, area_long, 
                 interval_value, interval_symbol, 
-                map_path, rule_desc, activated) 
-            Values (?,?,?,?,?,?,?,?,?,?)
+                map_path, rule_desc, activated, forecast) 
+            Values (?,?,?,?,?,?,?,?,?,?, ?)
         """)
         try:
             return self.add_helper(insert_sql_string, new_rule)
@@ -103,9 +103,9 @@ class WeatherHandler:
                             rule.rule_id)
         self.cnxn.commit()
 
-    def update_rule(self, rule_id, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):
+    def update_rule(self, rule_id, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path, forecast):
         print("Updating weather rule.")   
-        updated_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path)
+        updated_rule = Rule(condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path, forecast)
         updated_rule.rule_id = rule_id
 
         update_string = textwrap.dedent("""
@@ -119,7 +119,8 @@ class WeatherHandler:
             interval_symbol = ?,
             map_path = ?, 
             rule_desc = ?, 
-            activated = ?
+            activated = ?,
+            forecast = ?
             WHERE rule_id = ?
         """)
         try:
@@ -147,6 +148,7 @@ class WeatherHandler:
                             jsonpickle.encode(rule.path),
                             rule.description,
                             rule.active,
+                            rule.forecast,
                             rule_id)
         # jsonpickle.encode(rule.path)
         self.cnxn.commit()
@@ -163,7 +165,8 @@ class WeatherHandler:
                             rule.condition_interval_symbol,
                             jsonpickle.encode(rule.path),
                             rule.description,
-                            rule.active) # Insert it into database
+                            rule.active,
+                            rule.forecast) # Insert it into database
         self.cursor.execute("Select @@IDENTITY")
         new_id = int(self.cursor.fetchone()[0])
         rule.rule_id = new_id
@@ -249,7 +252,8 @@ class WeatherHandler:
             interval_symbol,
             map_path,
             rule_desc,
-            activated
+            activated,
+            forecast
         From
             WeatherRules
         Where
@@ -281,7 +285,8 @@ class WeatherHandler:
                                     result.rule_desc,
                                     result.area_name,
                                     result.park_id,
-                                    result.map_path
+                                    result.map_path,
+                                    result.forecast
                                     )
                 fetched_rule.rule_id = result.rule_id   
                 fetched_rule.active = int(result.activated)
@@ -303,7 +308,8 @@ class WeatherHandler:
             interval_symbol,
             map_path,
             rule_desc,
-            activated
+            activated,
+            forecast
         From
             WeatherRules
         Where
@@ -338,7 +344,8 @@ class WeatherHandler:
                                     result.rule_desc,
                                     result.area_name,
                                     result.park_id,
-                                    result.map_path
+                                    result.map_path,
+                                    result.forecast
                                     )
                 fetched_rule.rule_id = result.rule_id   
                 fetched_rule.active = int(result.activated)
@@ -365,7 +372,8 @@ class WeatherHandler:
             interval_symbol,
             map_path,
             rule_desc,
-            activated
+            activated,
+            forecast
         From
             WeatherRules
         Where
@@ -398,7 +406,8 @@ class WeatherHandler:
                                     result.rule_desc,
                                     result.area_name,
                                     result.park_id,
-                                    result.map_path
+                                    result.map_path,
+                                    result.forecast
                                     )
             fetched_rule.rule_id = result.rule_id   
             fetched_rule.active = int(result.activated)
@@ -470,7 +479,7 @@ class Rule:
         condition_interval_symbol: The type of inequality (leq = less than or equal to, eq = ==, etc..)
         description: A short discription of what the rule describes
     """
-    def __init__(self, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path):
+    def __init__(self, condition_type, condition_interval_value, condition_interval_symbol, description, name, park_id, path, forecast):
         """
         Initalizes a new Rule object
 
@@ -490,6 +499,7 @@ class Rule:
         self.center_lat, self.center_long = self.get_center_cords(self.path)
         self.active = 0
         self.rule_id = None
+        self.forecast = forecast
 
     def get_center_cords(self, path):
         # [{lat: 36.86149, lng: 30.63743},{lat: 36.86341, lng: 30.72463}]
@@ -511,9 +521,14 @@ class Rule:
         Returns:
             The JSON returned by OpenWeather
         """
-        request_url = open_weather_request_url.format(float(self.center_lat), float(self.center_long), "imperial", app_id)
-        request = requests.get(request_url)
-        return request.json()
+        if self.forecast:
+            request_url = open_weather_forecast_request_url.format(float(self.center_lat), float(self.center_long), "imperial", app_id)
+            request = requests.get(request_url)
+            return request.json()
+        else:
+            request_url = open_weather_request_url.format(float(self.center_lat), float(self.center_long), "imperial", app_id)
+            request = requests.get(request_url)
+            return request.json()
 
     def check_rule(self, weather_json):
         """

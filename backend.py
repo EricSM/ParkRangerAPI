@@ -32,7 +32,9 @@ from controllers.fire import Fire, WildFireHandler
 from controllers.park import Park, ParkHandler
 from controllers.email import EmailHandler
 
-app = Flask(__name__, template_folder="templates")
+documentation_filepath = "parkranger_docs_4-7.html"
+
+app = Flask(__name__, template_folder="templates", static_url_path='/static')
 logging.basicConfig(level=logging.DEBUG)
 cors = CORS(app)
 
@@ -51,6 +53,10 @@ scheduler.start()
 
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())
+
+@app.route('/pw/api/docs')
+def docs():
+    return app.send_static_file(documentation_filepath)
 
 ################################################################
 #                            Parks                             #
@@ -676,7 +682,8 @@ def create_rule(request):
                      request.json['description'],
                      request.json['name'],
                      park_id,
-                     json.dumps(request.json['path'])
+                     json.dumps(request.json['path']),
+                     request.json['forecast']
                      )
 
     return report_json
@@ -698,7 +705,8 @@ def update_rule(park_id, rule_id, request):
                      request.json['description'],
                      request.json['name'],
                      park_id,
-                     json.dumps(request.json['path'])
+                     json.dumps(request.json['path']),
+                     request.json['forecast']
                      )
 
     return report_json
