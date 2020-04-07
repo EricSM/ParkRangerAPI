@@ -93,16 +93,20 @@ maxDate = maximum date (not implemented)
     
 Supported weather conditions:
     rain, wind, snow, temp
+    
+Forcast = true will use the 5 day weather forecast instead of current weather.
 </code></pre>
-<pre><code class="has-line-data" data-line-start="118" data-line-end="125" class="language-json">{"<span class="hljs-attribute">condition_interval_symbol</span>":<span class="hljs-value"><span class="hljs-string">"geq"</span></span>,
+<pre><code class="has-line-data" data-line-start="120" data-line-end="129" class="language-json">{"<span class="hljs-attribute">condition_interval_symbol</span>":<span class="hljs-value"><span class="hljs-string">"geq"</span></span>,
 "<span class="hljs-attribute">condition_interval_value</span>":<span class="hljs-value"><span class="hljs-number">0</span></span>, 
 "<span class="hljs-attribute">condition_type</span>":<span class="hljs-value"><span class="hljs-string">"temp"</span></span>,
 "<span class="hljs-attribute">description</span>":<span class="hljs-value"><span class="hljs-string">"Test description"</span></span>, 
 "<span class="hljs-attribute">name</span>":<span class="hljs-value"><span class="hljs-string">"This rule should trigger"</span></span>, 
-"<span class="hljs-attribute">path</span>":<span class="hljs-value">[{"<span class="hljs-attribute">lat</span>":<span class="hljs-value"><span class="hljs-number">36.86149</span></span>,"<span class="hljs-attribute">lng</span>":<span class="hljs-value"><span class="hljs-number">30.63743</span></span>},{"<span class="hljs-attribute">lat</span>":<span class="hljs-value"><span class="hljs-number">36.86341</span></span>,"<span class="hljs-attribute">lng</span>":<span class="hljs-value"><span class="hljs-number">30.72463</span></span>}]</span>}
+"<span class="hljs-attribute">path</span>":<span class="hljs-value">[{"<span class="hljs-attribute">lat</span>":<span class="hljs-value"><span class="hljs-number">36.86149</span></span>,"<span class="hljs-attribute">lng</span>":<span class="hljs-value"><span class="hljs-number">30.63743</span></span>},{"<span class="hljs-attribute">lat</span>":<span class="hljs-value"><span class="hljs-number">36.86341</span></span>,"<span class="hljs-attribute">lng</span>":<span class="hljs-value"><span class="hljs-number">30.72463</span></span>}]</span>,
+"<span class="hljs-attribute">forecast</span>": <span class="hljs-value">True
+</span>}
 </code></pre>
-<p class="has-line-data" data-line-start="126" data-line-end="127">If the rule has been added it will be returned as follows:</p>
-<pre><code class="has-line-data" data-line-start="129" data-line-end="142" class="language-json">{"<span class="hljs-attribute">active</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+<p class="has-line-data" data-line-start="130" data-line-end="131">If the rule has been added it will be returned as follows:</p>
+<pre><code class="has-line-data" data-line-start="133" data-line-end="148" class="language-json">{"<span class="hljs-attribute">active</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
 "<span class="hljs-attribute">center_lat</span>": <span class="hljs-value"><span class="hljs-number">33.7</span></span>,
 "<span class="hljs-attribute">center_long</span>": <span class="hljs-value">-<span class="hljs-number">84.3</span></span>,
 "<span class="hljs-attribute">condition_interval_symbol</span>": <span class="hljs-value"><span class="hljs-string">"geq"</span></span>,
@@ -110,34 +114,36 @@ Supported weather conditions:
 "<span class="hljs-attribute">condition_type</span>": <span class="hljs-value"><span class="hljs-string">"rain"</span></span>,
 "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Should trigger when raining in Atlanta, Georgia"</span></span>,
 "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Atlanta, Georgia"</span></span>,
-"<span class="hljs-attribute">park_id</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+"<span class="hljs-attribute">forecast</span>" : <span class="hljs-value">False
+<span class="hljs-string">"park_id"</span>: <span class="hljs-number">0</span></span>,
 "<span class="hljs-attribute">path</span>": <span class="hljs-value">[{"<span class="hljs-attribute">lat</span>": <span class="hljs-value"><span class="hljs-number">33.7</span></span>, "<span class="hljs-attribute">lng</span>": <span class="hljs-value">-<span class="hljs-number">84.3</span></span>}, {"<span class="hljs-attribute">lat</span>": <span class="hljs-value"><span class="hljs-number">33.7</span></span>, "<span class="hljs-attribute">lng</span>": <span class="hljs-value">-<span class="hljs-number">84.3</span></span>}]</span>,
 "<span class="hljs-attribute">py/object</span>": <span class="hljs-value"><span class="hljs-string">"controllers.weather.Rule"</span></span>,
-"<span class="hljs-attribute">rule_id</span>": <span class="hljs-value"><span class="hljs-number">19</span></span>}
+"<span class="hljs-attribute">rule_id</span>": <span class="hljs-value"><span class="hljs-number">19</span>
+</span>}
 </code></pre>
-<p class="has-line-data" data-line-start="142" data-line-end="144"><strong>DELETE: Deletes a weather rule</strong><br>
+<p class="has-line-data" data-line-start="148" data-line-end="150"><strong>DELETE: Deletes a weather rule</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/weather?park=1&amp;id=1&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/weather?park=1&amp;id=1&amp;token=0000000000000000</a></p>
 <ul>
-<li class="has-line-data" data-line-start="145" data-line-end="147">Deletes the specified rule, requires DELETE to be in header.</li>
+<li class="has-line-data" data-line-start="151" data-line-end="153">Deletes the specified rule, requires DELETE to be in header.</li>
 </ul>
-<p class="has-line-data" data-line-start="147" data-line-end="149"><strong>UPDATE: Use POST with the new JSON and specify park_id and id to update.</strong><br>
+<p class="has-line-data" data-line-start="153" data-line-end="155"><strong>UPDATE: Use POST with the new JSON and specify park_id and id to update.</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/weather?park=1&amp;id=1&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/weather?park=1&amp;id=1&amp;token=0000000000000000</a></p>
-<h2 class="code-line" data-line-start=150 data-line-end=151><a id="Parking_150"></a>Parking</h2>
-<p class="has-line-data" data-line-start="151" data-line-end="152">All uri require at least a park id.</p>
-<p class="has-line-data" data-line-start="153" data-line-end="155"><strong>GET: All parking lots in park</strong><br>
+<h2 class="code-line" data-line-start=156 data-line-end=157><a id="Parking_156"></a>Parking</h2>
+<p class="has-line-data" data-line-start="157" data-line-end="158">All uri require at least a park id.</p>
+<p class="has-line-data" data-line-start="159" data-line-end="161"><strong>GET: All parking lots in park</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1">https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1</a></p>
-<p class="has-line-data" data-line-start="156" data-line-end="158"><strong>GET: Specific parking lot in park</strong><br>
+<p class="has-line-data" data-line-start="162" data-line-end="164"><strong>GET: Specific parking lot in park</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1&amp;id=1">https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1&amp;id=1</a></p>
-<p class="has-line-data" data-line-start="159" data-line-end="161"><strong>POST: Create a new parking lot</strong><br>
+<p class="has-line-data" data-line-start="165" data-line-end="167"><strong>POST: Create a new parking lot</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=0&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=0&amp;token=0000000000000000</a></p>
-<pre><code class="has-line-data" data-line-start="163" data-line-end="169" class="language-json">{"<span class="hljs-attribute">lot_name</span>":<span class="hljs-value"><span class="hljs-string">"NEW name"</span></span>,
+<pre><code class="has-line-data" data-line-start="169" data-line-end="175" class="language-json">{"<span class="hljs-attribute">lot_name</span>":<span class="hljs-value"><span class="hljs-string">"NEW name"</span></span>,
 "<span class="hljs-attribute">lot_lat</span>":<span class="hljs-value"><span class="hljs-number">100.0</span></span>, 
 "<span class="hljs-attribute">lot_long</span>":<span class="hljs-value"><span class="hljs-number">100.0</span></span>,
 "<span class="hljs-attribute">description</span>":<span class="hljs-value"><span class="hljs-string">"A test description"</span></span>,
 "<span class="hljs-attribute">severity</span>":<span class="hljs-value"><span class="hljs-number">0</span></span>}
 </code></pre>
-<p class="has-line-data" data-line-start="171" data-line-end="172">If the rule has been added it will be returned as follows:</p>
-<pre><code class="has-line-data" data-line-start="174" data-line-end="183" class="language-json">{"<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"A test description"</span></span>,
+<p class="has-line-data" data-line-start="177" data-line-end="178">If the rule has been added it will be returned as follows:</p>
+<pre><code class="has-line-data" data-line-start="180" data-line-end="189" class="language-json">{"<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"A test description"</span></span>,
 "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">4</span></span>,
 "<span class="hljs-attribute">lot_lat</span>": <span class="hljs-value"><span class="hljs-number">100.0</span></span>,
 "<span class="hljs-attribute">lot_long</span>": <span class="hljs-value"><span class="hljs-number">100.0</span></span>,
@@ -146,70 +152,70 @@ Supported weather conditions:
 "<span class="hljs-attribute">py/object</span>":<span class="hljs-value"><span class="hljs-string">"controllers.parking.ParkingLot"</span></span>,
 "<span class="hljs-attribute">severity</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>}
 </code></pre>
-<p class="has-line-data" data-line-start="184" data-line-end="186"><strong>DELETE: Deletes a parking lot</strong><br>
+<p class="has-line-data" data-line-start="190" data-line-end="192"><strong>DELETE: Deletes a parking lot</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1&amp;id=1&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1&amp;id=1&amp;token=0000000000000000</a></p>
 <ul>
-<li class="has-line-data" data-line-start="187" data-line-end="189">Deletes the specified rule, requires DELETE to be in header.</li>
+<li class="has-line-data" data-line-start="193" data-line-end="195">Deletes the specified rule, requires DELETE to be in header.</li>
 </ul>
-<p class="has-line-data" data-line-start="189" data-line-end="191"><strong>UPDATE: Use POST with the new JSON and specify park_id and id to update.</strong><br>
+<p class="has-line-data" data-line-start="195" data-line-end="197"><strong>UPDATE: Use POST with the new JSON and specify park_id and id to update.</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1&amp;id=1&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/parking?park=1&amp;id=1&amp;token=0000000000000000</a></p>
-<h2 class="code-line" data-line-start=192 data-line-end=193><a id="Login_192"></a>Login</h2>
-<p class="has-line-data" data-line-start="193" data-line-end="194">All POST/DELETE requests require a user token for account verification. In order to get a token a user must first create an account. To do this, use POST to send the following request. Note how the park_id is included in the request body. This and the token must match in the DB to allow for login.</p>
-<p class="has-line-data" data-line-start="195" data-line-end="197"><strong>POST: Create a new user</strong><br>
+<h2 class="code-line" data-line-start=198 data-line-end=199><a id="Login_198"></a>Login</h2>
+<p class="has-line-data" data-line-start="199" data-line-end="200">All POST/DELETE requests require a user token for account verification. In order to get a token a user must first create an account. To do this, use POST to send the following request. Note how the park_id is included in the request body. This and the token must match in the DB to allow for login.</p>
+<p class="has-line-data" data-line-start="201" data-line-end="203"><strong>POST: Create a new user</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/login/new">https://parkwatch-backend.azurewebsites.net/pw/api/login/new</a></p>
-<pre><code class="has-line-data" data-line-start="199" data-line-end="207" class="language-json">{
-  "<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5b3a37392e281b33343c2c3a292f28753e3f2e">[email&#160;protected]</a>"</span></span>,
+<pre><code class="has-line-data" data-line-start="205" data-line-end="213" class="language-json">{
+  "<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="96f7faf4e3e5d6fef9f1e1f7e4e2e5b8f3f2e3">[email&#160;protected]</a>"</span></span>,
   "<span class="hljs-attribute">password</span>":<span class="hljs-value"><span class="hljs-string">"password"</span></span>,
   "<span class="hljs-attribute">f_name</span>":<span class="hljs-value"><span class="hljs-string">"Albus"</span></span>,
   "<span class="hljs-attribute">l_name</span>":<span class="hljs-value"><span class="hljs-string">"Dumbledore"</span></span>,
   "<span class="hljs-attribute">park_id</span>":<span class="hljs-value"><span class="hljs-number">0</span>
 </span>}
 </code></pre>
-<p class="has-line-data" data-line-start="208" data-line-end="210"><strong>POST: Update a user’s profile</strong><br>
+<p class="has-line-data" data-line-start="214" data-line-end="216"><strong>POST: Update a user’s profile</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/profile?uID=1&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/profile?uID=1&amp;token=0000000000000000</a></p>
-<pre><code class="has-line-data" data-line-start="212" data-line-end="220" class="language-json">{
-  "<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d3c313f282e1d35323a2a3c2f292e73383928">[email&#160;protected]</a>"</span></span>,
+<pre><code class="has-line-data" data-line-start="218" data-line-end="226" class="language-json">{
+  "<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6c7cac4d3d5e6cec9c1d1c7d4d2d588c3c2d3">[email&#160;protected]</a>"</span></span>,
   "<span class="hljs-attribute">password</span>":<span class="hljs-value"><span class="hljs-string">"new password"</span></span>,
   "<span class="hljs-attribute">f_name</span>":<span class="hljs-value"><span class="hljs-string">"Gellert"</span></span>,
   "<span class="hljs-attribute">l_name</span>":<span class="hljs-value"><span class="hljs-string">"Grindewald"</span></span>,
   "<span class="hljs-attribute">park_id</span>":<span class="hljs-value"><span class="hljs-number">0</span>
 </span>}
 </code></pre>
-<p class="has-line-data" data-line-start="221" data-line-end="223"><strong>POST: Update a user’s password</strong><br>
+<p class="has-line-data" data-line-start="227" data-line-end="229"><strong>POST: Update a user’s password</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/profile?uID=1&amp;token=0000000000000000">https://parkwatch-backend.azurewebsites.net/pw/api/profile?uID=1&amp;token=0000000000000000</a></p>
-<pre><code class="has-line-data" data-line-start="225" data-line-end="230" class="language-json">{
+<pre><code class="has-line-data" data-line-start="231" data-line-end="236" class="language-json">{
   "<span class="hljs-attribute">password</span>":<span class="hljs-value"><span class="hljs-string">"old password"</span></span>,
   "<span class="hljs-attribute">new_password</span>":<span class="hljs-value"><span class="hljs-string">"new password"</span>
 </span>}
 </code></pre>
-<p class="has-line-data" data-line-start="231" data-line-end="233"><strong>POST: Login</strong><br>
+<p class="has-line-data" data-line-start="237" data-line-end="239"><strong>POST: Login</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/login">https://parkwatch-backend.azurewebsites.net/pw/api/login</a></p>
-<pre><code class="has-line-data" data-line-start="235" data-line-end="239" class="language-json">{  "<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6c7cac4d3d5e6cec9c1d1c7d4d2d588c3c2d3">[email&#160;protected]</a>"</span></span>,
+<pre><code class="has-line-data" data-line-start="241" data-line-end="245" class="language-json">{  "<span class="hljs-attribute">email</span>":<span class="hljs-value"><span class="hljs-string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="99f8f5fbecead9f1f6feeef8ebedeab7fcfdec">[email&#160;protected]</a>"</span></span>,
   "<span class="hljs-attribute">password</span>":<span class="hljs-value"><span class="hljs-string">"password"</span>
 </span>}
 </code></pre>
-<p class="has-line-data" data-line-start="240" data-line-end="241">When logging in you only need to send the email and password.</p>
-<h2 class="code-line" data-line-start=242 data-line-end=243><a id="Wildfires_242"></a>Wildfires:</h2>
-<p class="has-line-data" data-line-start="244" data-line-end="246"><strong>GET: All wildfires in the United States</strong><br>
+<p class="has-line-data" data-line-start="246" data-line-end="247">When logging in you only need to send the email and password.</p>
+<h2 class="code-line" data-line-start=248 data-line-end=249><a id="Wildfires_248"></a>Wildfires:</h2>
+<p class="has-line-data" data-line-start="250" data-line-end="252"><strong>GET: All wildfires in the United States</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/wildfire">https://parkwatch-backend.azurewebsites.net/pw/api/wildfire</a></p>
-<p class="has-line-data" data-line-start="247" data-line-end="249"><strong>GET: All wildfires within a specific range</strong><br>
+<p class="has-line-data" data-line-start="253" data-line-end="255"><strong>GET: All wildfires within a specific range</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/wildfire?locLon=25&amp;locLat=-81&amp;locRange=3">https://parkwatch-backend.azurewebsites.net/pw/api/wildfire?locLon=25&amp;locLat=-81&amp;locRange=3</a></p>
 <pre><code>    locLon = longtitude of search
     locLat = latitiude of search
     locRange = specificies a range for the included longtitude and latitude (float)
 </code></pre>
-<pre><code class="has-line-data" data-line-start="255" data-line-end="261" class="language-json">[{
+<pre><code class="has-line-data" data-line-start="261" data-line-end="267" class="language-json">[{
     "<span class="hljs-attribute">center_lat</span>": <span class="hljs-value"><span class="hljs-number">25.877772576864924</span></span>, 
     "<span class="hljs-attribute">center_lon</span>": <span class="hljs-value">-<span class="hljs-number">81.23914016018921</span></span>,
     "<span class="hljs-attribute">incident_name</span>": <span class="hljs-value"><span class="hljs-string">"Car Fire"</span>
 </span>}]
 </code></pre>
-<h2 class="code-line" data-line-start=262 data-line-end=263><a id="Parks_262"></a>Parks:</h2>
-<p class="has-line-data" data-line-start="264" data-line-end="266"><strong>GET: All parks</strong><br>
+<h2 class="code-line" data-line-start=268 data-line-end=269><a id="Parks_268"></a>Parks:</h2>
+<p class="has-line-data" data-line-start="270" data-line-end="272"><strong>GET: All parks</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parks">https://parkwatch-backend.azurewebsites.net/pw/api/parks</a></p>
-<p class="has-line-data" data-line-start="267" data-line-end="269"><strong>GET: A specific park</strong><br>
+<p class="has-line-data" data-line-start="273" data-line-end="275"><strong>GET: A specific park</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parks?park=0">https://parkwatch-backend.azurewebsites.net/pw/api/parks?park=0</a></p>
-<pre><code class="has-line-data" data-line-start="271" data-line-end="281" class="language-json">{   
+<pre><code class="has-line-data" data-line-start="277" data-line-end="287" class="language-json">{   
     "<span class="hljs-attribute">park_cover_image</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
     "<span class="hljs-attribute">park_id</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>, 
     "<span class="hljs-attribute">park_lat</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
@@ -219,12 +225,12 @@ Supported weather conditions:
     "<span class="hljs-attribute">park_org</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
 </span>}
 </code></pre>
-<p class="has-line-data" data-line-start="282" data-line-end="284"><strong>POST: Create a park</strong><br>
+<p class="has-line-data" data-line-start="288" data-line-end="290"><strong>POST: Create a park</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parks?token=9999999999999999">https://parkwatch-backend.azurewebsites.net/pw/api/parks?token=9999999999999999</a></p>
 <pre><code>Creating a park requires the use of the super user token (for now). 
 To create a park send a POST request with the following body:
 </code></pre>
-<pre><code class="has-line-data" data-line-start="289" data-line-end="298" class="language-json">{
+<pre><code class="has-line-data" data-line-start="295" data-line-end="304" class="language-json">{
     "<span class="hljs-attribute">park_name</span>": <span class="hljs-value"><span class="hljs-string">"Park Name"</span></span>,
     "<span class="hljs-attribute">park_lat</span>":<span class="hljs-value"><span class="hljs-number">0.0</span></span>,
     "<span class="hljs-attribute">park_lon</span>":<span class="hljs-value"><span class="hljs-number">0.0</span></span>,
@@ -233,11 +239,11 @@ To create a park send a POST request with the following body:
     "<span class="hljs-attribute">park_logo</span>": <span class="hljs-value"><span class="hljs-string">"NOT IMPLEMENTED"</span>
 </span>}
 </code></pre>
-<p class="has-line-data" data-line-start="299" data-line-end="301"><strong>POST: Update a park</strong><br>
+<p class="has-line-data" data-line-start="305" data-line-end="307"><strong>POST: Update a park</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parks?park=10&amp;token=9999999999999999">https://parkwatch-backend.azurewebsites.net/pw/api/parks?park=10&amp;token=9999999999999999</a></p>
 <pre><code>To update a park send a POST request, same as creating a park but specify park_id in the URL.
 </code></pre>
-<p class="has-line-data" data-line-start="304" data-line-end="306"><strong>DELETE: Delete a park</strong><br>
+<p class="has-line-data" data-line-start="310" data-line-end="312"><strong>DELETE: Delete a park</strong><br>
 <a href="https://parkwatch-backend.azurewebsites.net/pw/api/parks?park=10">https://parkwatch-backend.azurewebsites.net/pw/api/parks?park=10</a>&gt;&amp;token=9999999999999999</p>
 <pre><code>THIS PERMANENTLY DELETES A PARK!
 </code></pre>
