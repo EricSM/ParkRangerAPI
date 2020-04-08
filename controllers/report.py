@@ -3,6 +3,7 @@ import datetime as dt
 import jsonpickle
 import textwrap
 from distutils import util
+import os
 
 class Report:
     def __init__(self, loc_name, park_id, loc_lat, loc_long, description, severity, closure, approved_status, photo):
@@ -295,7 +296,7 @@ class ReportHandler:
         Returns:
             True or False
         """
-        print("Delete a report.")
+        print("Deleting a report.")
 
         delete_string = "Delete from Reports where park_id = ? AND ID = ?"
 
@@ -314,6 +315,11 @@ class ReportHandler:
     def delete_helper(self, query, park_id, id):
         self.cursor.execute(query, park_id, id)
         self.cursor.commit()
+
+        filename = 'reportphotos/report' + str(id) + '.txt'
+        if os.path.exists(filename):
+            os.remove(filename)
+
         print('report {0} deleted from park {1}\n\n'.format(id, park_id))
         return True
 

@@ -1,6 +1,7 @@
 import pyodbc
 import textwrap
 import jsonpickle
+import os
 
 class Park:
     def __init__(self, park_name, park_id, park_lat, park_lon, park_org, park_cover_image, park_logo):
@@ -166,7 +167,7 @@ class ParkHandler():
         return jsonpickle.encode(new_park, unpicklable=False)
 
     def delete_park(self, park_id):
-        print("Delete a park.")
+        print("Deleting a park.")
 
         delete_string = "Delete from Parks where ID = ?"
 
@@ -178,6 +179,16 @@ class ParkHandler():
     def delete_helper(self, query, park_id):
         self.cursor.execute(query, park_id)
         self.cursor.commit()
+
+        # Delete photos
+        filename = 'parkcovers/coverimage' + str(park_id) + '.txt'
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        filename = 'parklogos/logoimage' + str(park_id) + '.txt'
+        if os.path.exists(filename):
+            os.remove(filename)
+
         return True
 
     def update_park(self, park_name, park_id, park_lat, park_lon, park_org, park_cover_image, park_logo):
