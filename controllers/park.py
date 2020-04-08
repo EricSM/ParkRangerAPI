@@ -92,7 +92,6 @@ class ParkHandler():
         results = self.cursor.fetchall()
         if results:
             for result in results:
-                # TODO: test image retrieval
                 cover = ''
                 logo = ''
 
@@ -232,7 +231,6 @@ class ParkHandler():
         return jsonpickle.encode(new_park, unpicklable=False)
 
     def save_image_helper(self, park_id, park_cover, park_logo):
-        # TODO: test image storage
         # Save images on server
         # remove "data:application/octet-stream;base64," from start of files
         if len(park_cover) > 37:

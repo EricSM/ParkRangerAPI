@@ -316,6 +316,7 @@ class ReportHandler:
         self.cursor.execute(query, park_id, id)
         self.cursor.commit()
 
+        # Delete photo
         filename = 'reportphotos/report' + str(id) + '.txt'
         if os.path.exists(filename):
             os.remove(filename)
