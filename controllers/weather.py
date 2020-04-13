@@ -433,6 +433,9 @@ class WeatherHandler:
             self.refresh_rules(park_id)
 
         rules = self.get_rules(park_id)
+        if not rules:
+            return None
+
         if len(rules) == 0:
             return rules
 
