@@ -434,7 +434,7 @@ class WeatherHandler:
 
         rules = self.get_rules(park_id)
         if not rules:
-            return None
+            return []
 
         if len(rules) == 0:
             return rules
@@ -545,6 +545,9 @@ class Rule:
             False: otherwise
         """
         print(weather_json, flush=True)
+        if(self.forecast):
+            weather_json = weather_json['list'][3]
+
         if(self.condition_type == 'rain'): # Rain is measured in mm
             if (self.condition_type in weather_json.keys()): # Make sure the JSON contains rain (it will if rain is in the forecast)
                 rain_type = '1h' # Default rain type to 1 hour but use 3 if possible
